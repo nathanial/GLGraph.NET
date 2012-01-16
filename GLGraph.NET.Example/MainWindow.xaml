@@ -3,6 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:NET="clr-namespace:GLGraph.NET;assembly=GLGraph.NET" Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <NET:LineGraph />
+        <NET:LineGraph x:Name="graph" />
     </Grid>
 </Window>
