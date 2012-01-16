@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using OpenTK;
@@ -29,37 +29,31 @@ namespace GLGraph.NET {
         public double Finish { get; set; }
     }
 
+
     public interface ILineGraph {
+        ObservableCollection<Line> Lines { get; }
+        ObservableCollection<IDrawable> Markers { get; }
+
         void Draw();
-
         void Display(Rect rect);
-
-        void AddMarker(IDrawable marker);
-        void ClearMarkers();
-        IDrawable[] Markers { get; }
-
-        void AddLine(Line newLine);
-        void RemoveLine(Line oldLine);
-
         void Cleanup();
 
     }
 
     public partial class LineGraph : ILineGraph {
-        readonly IList<IDrawable> _markers = new List<IDrawable>();
-        readonly IList<Line> _lines = new List<Line>();
+        readonly ObservableCollection<IDrawable> _markers = new ObservableCollection<IDrawable>();
+        readonly ObservableCollection<Line> _lines = new ObservableCollection<Line>();
+        readonly IDictionary<Line, DisplayList> _displayLists = new Dictionary<Line, DisplayList>();
 
         bool _panningStarted;
         TickBar _leftTickBar;
         TickBar _bottomTickBar;
         int _xstart, _ystart;
 
-
-        readonly IDictionary<Line, DisplayList> _displayLists = new Dictionary<Line, DisplayList>();
-
         GraphWindow Window { get; set; }
 
-        public IDrawable[] Markers { get { return _markers.ToArray(); } }
+        public ObservableCollection<IDrawable> Markers { get { return _markers; } }
+        public ObservableCollection<Line> Lines { get { return _lines; } }
 
         GLControl _glcontrol;
 
@@ -69,6 +63,19 @@ namespace GLGraph.NET {
             SnapsToDevicePixels = true;
             InitializeUserControl();
             InitializeOpenGL();
+
+            _lines.CollectionChanged += (s, args) => {
+                if (args.NewItems != null) {
+                    foreach (Line line in args.NewItems) {
+                        AddLine(line);
+                    }
+                }
+                if (args.OldItems != null) {
+                    foreach (Line line in args.OldItems) {
+                        RemoveLine(line);
+                    }
+                }
+            };
         }
 
         public void Cleanup() {
@@ -164,24 +171,14 @@ namespace GLGraph.NET {
             Draw();
         }
 
-        public void RemoveLine(Line oldLine) {
-            _lines.Remove(oldLine);
-            var dl = _displayLists[oldLine];
-            _displayLists.Remove(oldLine);
+        void AddLine(Line line) {
+            LoadDisplayList(line);
+        }
+
+        void RemoveLine(Line line) {
+            var dl = _displayLists[line];
             dl.Dispose();
-        }
-
-        public void AddLine(Line newLine) {
-            _lines.Add(newLine);
-            LoadDisplayList(newLine);
-        }
-
-        public void ClearMarkers() {
-            _markers.Clear();
-        }
-
-        public void AddMarker(IDrawable marker) {
-            _markers.Add(marker);
+            _displayLists.Remove(line);
         }
 
         void InitializeUserControl() {

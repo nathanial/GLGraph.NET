@@ -9,7 +9,7 @@ namespace GLGraph.NET.Example {
             InitializeComponent();
             if (DesignerProperties.GetIsInDesignMode(this)) return;
 
-            graph.AddLine(new Line(1.0f, Colors.Black, new[] { 
+            graph.Lines.Add(new Line(1.0f, Colors.Black, new[] { 
                 new Point(0,0),
                 new Point(1,1),
                 new Point(2,0), 
