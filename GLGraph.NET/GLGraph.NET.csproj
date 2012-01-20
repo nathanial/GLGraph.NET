@@ -123,7 +123,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="C5">
-      <HintPath>packages\C5.2.0.4398.23817\lib\net40\C5.dll</HintPath>
+      <HintPath>..\..\dchem\desktop\packages\C5.2.0.1\lib\net40\C5.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

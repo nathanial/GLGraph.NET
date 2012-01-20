@@ -56,6 +56,7 @@ namespace GLGraph.NET {
         public ObservableCollection<Line> Lines { get { return _lines; } }
 
         GLControl _glcontrol;
+        const string ZeroError = "WindowWidth cannot be zero, consider initializing LineGraph in the host's Loaded event";
 
         public LineGraph() {
             InitializeComponent();
@@ -164,6 +165,13 @@ namespace GLGraph.NET {
             Window.Top = rect.Y + rect.Height;
             Window.WindowWidth = (int)ActualWidth;
             Window.WindowHeight = (int)ActualHeight;
+
+            if (Window.WindowWidth == 0) throw new Exception(ZeroError);
+            if (Window.WindowHeight == 0) throw new Exception(ZeroError);
+
+            var xoffset = new Point(-60, 0).ToView(Window).X;
+            Window.Start += xoffset;
+            Window.Finish += xoffset;
 
             _glcontrol.MakeCurrent();
 
