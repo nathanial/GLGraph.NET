@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
@@ -66,14 +67,20 @@ namespace GLGraph.NET {
             InitializeOpenGL();
 
             _lines.CollectionChanged += (s, args) => {
-                if (args.NewItems != null) {
-                    foreach (Line line in args.NewItems) {
-                        AddLine(line);
+                if (args.Action == NotifyCollectionChangedAction.Reset) {
+                    foreach (var d in _displayLists.Values) {
+                        d.Dispose();
                     }
+                    _displayLists.Clear();
                 }
                 if (args.OldItems != null) {
                     foreach (Line line in args.OldItems) {
                         RemoveLine(line);
+                    }
+                }
+                if (args.NewItems != null) {
+                    foreach (Line line in args.NewItems) {
+                        AddLine(line);
                     }
                 }
             };
