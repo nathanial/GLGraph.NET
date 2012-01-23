@@ -14,6 +14,7 @@ namespace GLGraph.NET {
         public Point[] Points { get; set; }
         public Color Color { get; set; }
         public float Thickness { get; set; }
+
         public Line(float thickness, Color color, Point[] points) {
             Color = color;
             Points = points;
@@ -254,8 +255,8 @@ namespace GLGraph.NET {
                 GL.LineWidth(line.Thickness);
                 GL.Begin(BeginMode.Lines);
                 var size = line.Points.Length;
-                GL.Color3(line.Color.R / 255.0, line.Color.G / 255.0,
-                          line.Color.B / 255.0);
+                GL.Color4(line.Color.R / 255.0, line.Color.G / 255.0,
+                          line.Color.B / 255.0, line.Color.A / 255.0);
                 for (var j = 0; j < size - 1; j++) {
                     var p1 = line.Points[j];
                     var p2 = line.Points[j + 1];
