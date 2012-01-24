@@ -47,6 +47,10 @@ namespace GLGraph.NET {
             get { return new Point(_origin.X, _origin.Y); }
         }
 
+        public Size Size {
+            get { return new Size(Width, Height); }
+        }
+
         void DrawCore() {
             OpenGL.DrawQuad(
                 TopLeft, TopRight,
