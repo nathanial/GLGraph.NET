@@ -210,8 +210,20 @@ namespace GLGraph.NET {
             Loaded += (s, args) => Draw();
         }
 
+
+        float _lineMin;
+        float _lineMax;
+        float _lineGranularity;
+        //GL_SMOOTH_LINE_WIDTH_GRANULARITY
+
         void InitializeOpenGL() {
             _glcontrol.MakeCurrent();
+            Vector2 v2;
+            var range = new float[2];
+            GL.GetFloat(GetPName.SmoothLineWidthRange, range);
+            _lineMin = range[0];
+            _lineMax = range[1];
+            GL.GetFloat(GetPName.SmoothLineWidthGranularity, out _lineGranularity);
 
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.LineSmooth);
@@ -253,7 +265,7 @@ namespace GLGraph.NET {
 
         void LoadDisplayList(Line line) {
             _displayLists[line] = new DisplayList(() => {
-                GL.LineWidth(line.Thickness);
+                GL.LineWidth(ConstrainThickness(line.Thickness));
                 GL.Begin(BeginMode.Lines);
                 var size = line.Points.Length;
                 GL.Color4(line.Color.R / 255.0, line.Color.G / 255.0,
@@ -265,9 +277,10 @@ namespace GLGraph.NET {
                     GL.Vertex2(p2.X, p2.Y);
                 }
                 GL.End();
-                GL.LineWidth(1.0f);
+                GL.LineWidth(_lineMin);
             });
         }
+
 
         void DrawHorizontalCrossBars() {
             if (Math.Abs(Window.WindowHeight) < 0.001 || Math.Abs(Window.WindowWidth) < 0.001) return;
@@ -307,6 +320,13 @@ namespace GLGraph.NET {
             GL.Ortho(0, Window.WindowWidth, 0, Window.WindowHeight, -1, 1);
         }
 
+
+        float ConstrainThickness(float thickness) {
+            var t = Math.Min(Math.Max(thickness, _lineMin), _lineMax);
+            var step = ((int)(t * 10)) / ((int)(_lineGranularity * 10));
+            var r = step * _lineGranularity;
+            return r;
+        }
 
     }
 
