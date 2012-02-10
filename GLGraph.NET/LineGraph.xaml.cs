@@ -38,7 +38,7 @@ namespace GLGraph.NET {
         ObservableCollection<IDrawable> Markers { get; }
 
         void Draw();
-        void Display(Rect rect);
+        void Display(Rect rect, bool draw);
         void Cleanup();
 
     }
@@ -164,7 +164,7 @@ namespace GLGraph.NET {
             Draw();
         }
 
-        public void Display(Rect rect) {
+        public void Display(Rect rect, bool draw) {
             if (Window == null) {
                 Window = new GraphWindow();
             }
@@ -185,7 +185,9 @@ namespace GLGraph.NET {
             _glcontrol.MakeCurrent();
 
             LoadDisplayLists();
-            Draw();
+            if (draw) {
+                Draw();
+            }
         }
 
         void AddLine(Line line) {
