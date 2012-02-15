@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using OpenTK;
@@ -11,16 +10,44 @@ using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
 
+    public class LineChangedEventArgs : EventArgs {
+        public Line Line { get; set; }
+        public LineChangedEventArgs(Line line) {
+            Line = line;
+        }
+    }
+
     public class Line {
-        public Point[] Points { get; set; }
+        public event EventHandler<LineChangedEventArgs> Changed;
+
+        public IList<Point> Points { get; set; }
         public Color Color { get; set; }
         public float Thickness { get; set; }
+        
+        public Line(float thickness, Color color, IList<Point> points) {
+            var copy = new List<Point>();
+            copy.AddRange(points);
 
-        public Line(float thickness, Color color, Point[] points) {
             Color = color;
-            Points = points;
             Thickness = thickness;
+            Points = copy;
         }
+
+        public void AddPoint(Point point) {
+            Points.Add(point);
+            if(Changed != null) {
+                Changed(this, new LineChangedEventArgs(this));
+            }
+        }
+
+        public void RemovePoint(int index) {
+            Points.RemoveAt(index);
+            if(Changed != null) {
+                Changed(this, new LineChangedEventArgs(this));
+            }
+        }
+
+
     }
 
     public class GraphWindow {
@@ -32,7 +59,6 @@ namespace GLGraph.NET {
         public double Finish { get; set; }
     }
 
-
     public interface ILineGraph {
         ObservableCollection<Line> Lines { get; }
         ObservableCollection<IDrawable> Markers { get; }
@@ -40,7 +66,6 @@ namespace GLGraph.NET {
         void Draw();
         void Display(Rect rect, bool draw);
         void Cleanup();
-
     }
 
     public partial class LineGraph : ILineGraph {
@@ -192,12 +217,14 @@ namespace GLGraph.NET {
 
         void AddLine(Line line) {
             LoadDisplayList(line);
+            line.Changed += LineChanged;
         }
 
         void RemoveLine(Line line) {
             var dl = _displayLists[line];
             dl.Dispose();
             _displayLists.Remove(line);
+            line.Changed -= LineChanged;
         }
 
         void InitializeUserControl() {
@@ -220,7 +247,6 @@ namespace GLGraph.NET {
 
         void InitializeOpenGL() {
             _glcontrol.MakeCurrent();
-            Vector2 v2;
             var range = new float[2];
             GL.GetFloat(GetPName.SmoothLineWidthRange, range);
             _lineMin = range[0];
@@ -269,7 +295,7 @@ namespace GLGraph.NET {
             _displayLists[line] = new DisplayList(() => {
                 GL.LineWidth(ConstrainThickness(line.Thickness));
                 GL.Begin(BeginMode.Lines);
-                var size = line.Points.Length;
+                var size = line.Points.Count;
                 GL.Color4(line.Color.R / 255.0, line.Color.G / 255.0,
                           line.Color.B / 255.0, line.Color.A / 255.0);
                 for (var j = 0; j < size - 1; j++) {
@@ -329,6 +355,15 @@ namespace GLGraph.NET {
             var r = step * _lineGranularity;
             return r;
         }
+
+
+        void LineChanged(object sender, LineChangedEventArgs e) {
+            var dl = _displayLists[e.Line];
+            dl.Dispose();
+            _displayLists.Remove(e.Line);
+            LoadDisplayList(e.Line);
+        }
+
 
     }
 
