@@ -10,7 +10,6 @@ namespace GLGraph.NET.Example {
             InitializeComponent();
             if (DesignerProperties.GetIsInDesignMode(this)) return;
 
-
             Loaded += delegate {
                 ShowDynamicGraph();
             };
@@ -48,11 +47,11 @@ namespace GLGraph.NET.Example {
 
                 i++;
 
-                if(i >= (rect.Width + rect.X)) {
-                    var d = (i - (rect.Width + rect.X));
-                    rect = new Rect(rect.X + d, rect.Y, rect.Width,rect.Height);
-                    graph.Display(rect,false);
-                }
+                //if(i >= (rect.Width + rect.X)) {
+                //    var d = (i - (rect.Width + rect.X));
+                //    rect = new Rect(rect.X + d, rect.Y, rect.Width,rect.Height);
+                //    graph.Display(rect,false);
+                //}
                 graph.Draw();
             };
             _timer.Start();

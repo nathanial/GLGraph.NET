@@ -51,12 +51,27 @@ namespace GLGraph.NET {
     }
 
     public class GraphWindow {
-        public int WindowHeight { get; set; }
-        public int WindowWidth { get; set; }
-        public double Top { get; set; }
-        public double Bottom { get; set; }
-        public double Start { get; set; }
-        public double Finish { get; set; }
+        public Point DataOrigin;
+        public double DataWidth;
+        public double DataHeight;
+        public int WindowHeight;
+        public int WindowWidth;
+
+        public double Top {
+            get { return DataOrigin.Y + DataHeight; }
+        }
+
+        public double Finish {
+            get { return DataOrigin.X + DataWidth;  }
+        }
+
+        public double Start {
+            get { return DataOrigin.X; }
+        }
+
+        public double Bottom {
+            get { return DataOrigin.Y; }
+        }
     }
 
     public interface ILineGraph {
@@ -160,31 +175,28 @@ namespace GLGraph.NET {
 
         public void Pan(int xpos, int ypos) {
             if (!_panningStarted) return;
-            var xoffset = -(((xpos - _xstart) / (Window.WindowWidth * 1.0)) * (Window.Finish - Window.Start));
-            var yoffset = ((ypos - _ystart) / (Window.WindowHeight * 1.0)) * (Window.Top - Window.Bottom);
+            var xoffset = -(((xpos - _xstart) / (Window.WindowWidth * 1.0)) * (Window.DataWidth));
+            var yoffset = ((ypos - _ystart) / (Window.WindowHeight * 1.0)) * (Window.DataHeight);
             _xstart = xpos;
             _ystart = ypos;
-            Window.Start += xoffset;
-            Window.Finish += xoffset;
-            Window.Bottom += yoffset;
-            Window.Top += yoffset;
+            Window.DataOrigin = new Point(Window.DataOrigin.X + xoffset, Window.DataOrigin.Y + yoffset);
             Draw();
         }
 
         public void Zoom(double zdelta) {
-            var percentageWidth = ((Window.Finish - Window.Start) / 100.0) * 10;
-            var percentageHeight = ((Window.Top - Window.Bottom) / 100.0) * 10;
+            var percentageWidth = ((Window.DataWidth) / 100.0) * 10;
+            var percentageHeight = ((Window.DataHeight) / 100.0) * 10;
 
             if (zdelta > 0) {
-                Window.Start += percentageWidth;
-                Window.Finish -= percentageWidth;
-                Window.Top -= percentageHeight;
-                Window.Bottom += percentageHeight;
+                Window.DataWidth -= percentageWidth;
+                Window.DataHeight -= percentageHeight;
+                Window.DataOrigin = new Point(Window.DataOrigin.X + percentageWidth / 2.0, 
+                                              Window.DataOrigin.Y + percentageHeight / 2.0);
             } else {
-                Window.Start -= percentageWidth;
-                Window.Finish += percentageWidth;
-                Window.Top += percentageHeight;
-                Window.Bottom -= percentageHeight;
+                Window.DataWidth += percentageWidth;
+                Window.DataHeight += percentageHeight;
+                Window.DataOrigin = new Point(Window.DataOrigin.X - percentageWidth / 2.0,
+                                              Window.DataOrigin.Y - percentageHeight /2.0);
             }
             Draw();
         }
@@ -193,19 +205,18 @@ namespace GLGraph.NET {
             if (Window == null) {
                 Window = new GraphWindow();
             }
-            Window.Start = rect.X;
-            Window.Finish = rect.X + rect.Width;
-            Window.Bottom = rect.Y;
-            Window.Top = rect.Y + rect.Height;
+            Window.DataOrigin = rect.Location;
+            Window.DataWidth = rect.Width;
+            Window.DataHeight = rect.Height;
             Window.WindowWidth = (int)ActualWidth;
             Window.WindowHeight = (int)ActualHeight;
 
             if (Window.WindowWidth == 0) throw new Exception(ZeroError);
             if (Window.WindowHeight == 0) throw new Exception(ZeroError);
 
-            var xoffset = new Point(-60, 0).ToView(Window).X;
-            Window.Start += xoffset;
-            Window.Finish += xoffset;
+            //var xoffset = new Point(-60, 0).ToView(Window).X;
+            //Window.Start += xoffset;
+            //Window.Finish += xoffset;
 
             _glcontrol.MakeCurrent();
 
