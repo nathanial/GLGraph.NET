@@ -2,3 +2,4 @@ bin/
 obj/
 packages/
 _ReSharper*
+*.suo
