@@ -38,7 +38,7 @@ namespace GLGraph.NET {
                 start = t => VerticalStart(window, t);
                 end = (int)window.Top;
                 line = (l, i) => CreateVerticalLine(window, i, 50, l);
-                labelFunc = i => new PieceOfText(0, new Point(0, i).ToScreen(window).Y - 50 + 7.5, i.ToString());
+                labelFunc = i => new PieceOfText(0, new Point(0, i + new Point(0, 50).ToView(window).Y).ToScreen(window).Y - 50 + 7.5, i.ToString());
             } else {
                 origin = new Point(50, 0);
                 size = new GLSize(window.WindowWidth-50, 50);
@@ -124,7 +124,7 @@ namespace GLGraph.NET {
         }
 
         static Point[] CreateVerticalLine(GraphWindow window, int i, int x1, int x2) {
-            var r = new Point(0, i).ToScreen(window);
+            var r = new Point(0, i + new Point(0,50).ToView(window).Y).ToScreen(window);
             return new[] {
                 new Point(x1, r.Y),
                 new Point(x2, r.Y)

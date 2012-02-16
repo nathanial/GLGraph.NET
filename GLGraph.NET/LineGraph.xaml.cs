@@ -351,7 +351,9 @@ namespace GLGraph.NET {
 
         void DataMode() {
             GL.LoadIdentity();
-            GL.Ortho(Window.Start, Window.Finish, Window.Bottom, Window.Top, -1, 1);
+            var xoffset = new Point(50, 0).ToView(Window).X;
+            var yoffset = new Point(0, 50).ToView(Window).Y;
+            GL.Ortho(Window.Start, Window.Finish, Window.Bottom - yoffset , Window.Top - yoffset, -1, 1);
         }
 
         void WindowMode() {
