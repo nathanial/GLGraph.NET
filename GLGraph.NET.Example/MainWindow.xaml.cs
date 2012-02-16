@@ -24,6 +24,11 @@ namespace GLGraph.NET.Example {
                 new Point(3, 5),
                 new Point(4, 0),
                 new Point(5, 5), 
+                new Point(6, 0), 
+                new Point(7, 5), 
+                new Point(8, 0), 
+                new Point(9, 5), 
+                new Point(10, 0), 
             }));
             graph.Display(new Rect(0, 0, 10, 10), true);
         }

@@ -36,19 +36,19 @@ namespace GLGraph.NET {
             var minor = AdjustedMinorTick(window);
 
             if (_orientation == TickBarOrientation.Vertical) {
-                origin = new Point(0, _graph.BottomMargin);
-                size = new GLSize(_graph.LeftMargin, window.WindowHeight - _graph.BottomMargin);
+                origin = new Point(0, 0);
+                size = new GLSize(50, window.WindowHeight);
                 start = t => VerticalStart(window, t);
                 end = (int)window.Top;
-                line = (l, i) => CreateVerticalLine(window, i, (int)_graph.LeftMargin, l);
-                labelFunc = i => new PieceOfText(0, new Point(0, i + _graph.YOffset).ToScreen(window).Y - _graph.BottomMargin + 7.5, i.ToString());
+                line = (l, i) => CreateVerticalLine(window, i, 50, l);
+                labelFunc = i => new PieceOfText(0, i, i.ToString());
             } else {
-                origin = new Point(_graph.LeftMargin, 0);
-                size = new GLSize(window.WindowWidth - _graph.LeftMargin, _graph.BottomMargin);
+                origin = new Point(0, 0);
+                size = new GLSize(window.WindowWidth, 50);
                 start = t => HorizontalStart(window, t);
                 end = (int)window.Finish;
-                line = (l, i) => CreateHorizontalLine(window, i, (int)_graph.BottomMargin, l);
-                labelFunc = i => new PieceOfText(new Point(i + _graph.XOffset, 0).ToScreen(window).X - _graph.LeftMargin - ((i.ToString().Length / 2.0) * 8), 30, i.ToString());
+                line = (l, i) => CreateHorizontalLine(window, i, 50, l);
+                labelFunc = i => new PieceOfText(i, 30, i.ToString());
             }
 
             if (_graph.TextEnabled) {
@@ -63,10 +63,9 @@ namespace GLGraph.NET {
                 GL.Color3(0.0f, 0.0f, 0.0f);
                 GL.LineWidth(1.0f);
                 GL.Begin(BeginMode.Lines);
-                double margin = _orientation == TickBarOrientation.Vertical ? _graph.LeftMargin : _graph.BottomMargin;
                 GL.Color3(System.Drawing.Color.Black);
-                OpenGL.DrawMany(start(major), end, major, i => line((int) (margin - 20), i));
-                OpenGL.DrawMany(start(minor), end, minor, i => i % major == 0 ? new Point[] { } : line((int) (margin - 10), i));
+                OpenGL.DrawMany(start(major), end, major, i => line((int) (50 - 20), i));
+                OpenGL.DrawMany(start(minor), end, minor, i => i % major == 0 ? new Point[] { } : line((int) (50 - 10), i));
                 GL.End();
                 GL.LineWidth(1.0f);
             }
@@ -93,11 +92,11 @@ namespace GLGraph.NET {
         }
 
         int WidthForOrientation(GraphWindow window) {
-            return (int)(_orientation == TickBarOrientation.Horizontal ? window.WindowWidth - _graph.LeftMargin : _graph.LeftMargin);
+            return (int)(_orientation == TickBarOrientation.Horizontal ? window.WindowWidth : 50);
         }
 
         int HeightForOrientation(GraphWindow window) {
-            return (int)(_orientation == TickBarOrientation.Vertical ? window.WindowHeight - _graph.BottomMargin : _graph.BottomMargin);
+            return (int)(_orientation == TickBarOrientation.Vertical ? window.WindowHeight : 50);
         }
 
         public int AdjustedMajorTick(GraphWindow window) {
@@ -125,7 +124,7 @@ namespace GLGraph.NET {
         }
 
         Point[] CreateHorizontalLine(GraphWindow window, int i, int y1, int y2) {
-            var r = new Point(i + _graph.XOffset, 0).ToScreen(window);
+            var r = new Point(i, 0).ToScreen(window);
             return new[] {
                 new Point(r.X, y1),
                 new Point(r.X, y2)  
@@ -133,7 +132,7 @@ namespace GLGraph.NET {
         }
 
         Point[] CreateVerticalLine(GraphWindow window, int i, int x1, int x2) {
-            var r = new Point(0, i + _graph.YOffset).ToScreen(window);
+            var r = new Point(0, i).ToScreen(window);
             return new[] {
                 new Point(x1, r.Y),
                 new Point(x2, r.Y)

@@ -80,11 +80,6 @@ namespace GLGraph.NET {
         void Display(Rect rect, bool draw);
         void Cleanup();
 
-        double LeftMargin { get; }
-        double BottomMargin { get; }
-        double XOffset { get; }
-        double YOffset { get; }
-
         bool TextEnabled { get; set; }
     }
 
@@ -153,9 +148,12 @@ namespace GLGraph.NET {
             GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
 
-            WindowMode();
+            HorizontalCrossBarMode();
             DrawHorizontalCrossBars();
+
+            VerticalCrossBarMode();
             DrawVerticalCrossBars();
 
             DataMode();
@@ -165,13 +163,18 @@ namespace GLGraph.NET {
             foreach (var m in _markers) m.Draw(Window);
 
             WindowMode();
+            BottomTickMode();
             _bottomTickBar.Draw(Window);
+            LeftTickMode();
             _leftTickBar.Draw(Window);
+            WindowMode();
             DrawDeadSpace();
             
 
             _glcontrol.SwapBuffers();
         }
+
+
 
         public void StartPan(int xpos, int ypos) {
             _panningStarted = true;
@@ -340,9 +343,8 @@ namespace GLGraph.NET {
             var adjustedMajorTick = _leftTickBar.AdjustedMajorTick(Window);
             var start = TickBar.VerticalStart(Window, adjustedMajorTick);
             for (var i = start; i < Window.Top; i += adjustedMajorTick) {
-                var r = new Point(0, i + YOffset).ToScreen(Window);
-                GL.Vertex2(LeftMargin, r.Y);
-                GL.Vertex2(Window.WindowWidth, r.Y);
+                GL.Vertex2(Window.Start, i);
+                GL.Vertex2(Window.Finish, i);
             }
             GL.End();
         }
@@ -354,18 +356,20 @@ namespace GLGraph.NET {
             var adjustedMajorTick = _bottomTickBar.AdjustedMajorTick(Window);
             var start = TickBar.HorizontalStart(Window, adjustedMajorTick);
             for (var i = start; i < Window.Finish; i += adjustedMajorTick) {
-                var r = new Point(i + XOffset, 0).ToScreen(Window);
-                GL.Vertex2(r.X, BottomMargin);
-                GL.Vertex2(r.X, Window.WindowHeight);
+                GL.Vertex2(i,Window.Bottom);
+                GL.Vertex2(i,Window.Top);
             }
             GL.End();
         }
 
         void DataMode() {
+            GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            var xoffset = XOffset;
-            var yoffset = YOffset;
-            GL.Ortho(Window.Start - xoffset, Window.Finish - xoffset, Window.Bottom - yoffset , Window.Top - yoffset, -1, 1);
+            GL.Ortho(Window.Start, Window.Finish, Window.Bottom, Window.Top, -1, 1);
+            var xo = new Point(50, 0).ToView(Window).X;
+            var yo = new Point(0,50).ToView(Window).Y;
+            GL.Translate(xo,yo,0);
+            GL.Scale((Window.DataWidth - xo) / Window.DataWidth, (Window.DataHeight - yo) / Window.DataHeight, 0);
         }
 
         void WindowMode() {
@@ -373,6 +377,33 @@ namespace GLGraph.NET {
             GL.Ortho(0, Window.WindowWidth, 0, Window.WindowHeight, -1, 1);
         }
 
+        void HorizontalCrossBarMode() {
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            GL.Ortho(Window.Start, Window.Finish, Window.Bottom, Window.Top, -1, 1);
+            var xo = new Point(50, 0).ToView(Window).X;
+            var yo = new Point(0, 50).ToView(Window).Y;
+            GL.Translate(xo, yo, 0);
+            GL.Scale(1, (Window.DataHeight - yo) / Window.DataHeight, 0);
+        }
+
+        void VerticalCrossBarMode() {
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            GL.Ortho(Window.Start, Window.Finish, Window.Bottom, Window.Top, -1, 1);
+            var xo = new Point(50, 0).ToView(Window).X;
+            var yo = new Point(0, 50).ToView(Window).Y;
+            GL.Translate(xo, yo, 0);
+            GL.Scale((Window.DataWidth - xo) / Window.DataWidth, 1, 0);
+        }
+
+        void BottomTickMode() {
+
+        }
+
+        void LeftTickMode() {
+
+        }
 
         float ConstrainThickness(float thickness) {
             var t = Math.Min(Math.Max(thickness, _lineMin), _lineMax);
@@ -387,17 +418,6 @@ namespace GLGraph.NET {
             dl.Dispose();
             _displayLists.Remove(e.Line);
             LoadDisplayList(e.Line);
-        }
-
-        public double LeftMargin { get { return 50; } }
-        public double BottomMargin { get { return 50; } }
-
-        public double XOffset {
-            get { return new Point(LeftMargin, 0).ToView(Window).X; }
-        }
-
-        public double YOffset {
-            get { return new Point(0, BottomMargin).ToView(Window).Y; }
         }
 
     }
