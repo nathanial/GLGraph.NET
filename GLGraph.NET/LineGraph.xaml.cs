@@ -24,7 +24,7 @@ namespace GLGraph.NET {
         public Color Color { get; set; }
         public float Thickness { get; set; }
         
-        public Line(float thickness, Color color, IList<Point> points) {
+        public Line(float thickness, Color color, IEnumerable<Point> points) {
             var copy = new List<Point>();
             copy.AddRange(points);
 
@@ -46,8 +46,6 @@ namespace GLGraph.NET {
                 Changed(this, new LineChangedEventArgs(this));
             }
         }
-
-
     }
 
     public class GraphWindow {
@@ -81,6 +79,11 @@ namespace GLGraph.NET {
         void Draw();
         void Display(Rect rect, bool draw);
         void Cleanup();
+
+        double LeftMargin { get; }
+        double BottomMargin { get; }
+        double XOffset { get; }
+        double YOffset { get; }
     }
 
     public partial class LineGraph : ILineGraph {
@@ -251,7 +254,6 @@ namespace GLGraph.NET {
         float _lineMin;
         float _lineMax;
         float _lineGranularity;
-        //GL_SMOOTH_LINE_WIDTH_GRANULARITY
 
         void InitializeOpenGL() {
             _glcontrol.MakeCurrent();
@@ -267,11 +269,11 @@ namespace GLGraph.NET {
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Hint(HintTarget.LineSmoothHint, HintMode.DontCare);
 
-            _leftTickBar = new TickBar(TickBarOrientation.Vertical) {
+            _leftTickBar = new TickBar(this,TickBarOrientation.Vertical) {
                 MinorTick = 1,
                 MajorTick = 5
             };
-            _bottomTickBar = new TickBar(TickBarOrientation.Horizontal) {
+            _bottomTickBar = new TickBar(this, TickBarOrientation.Horizontal) {
                 MinorTick = 1,
                 MajorTick = 5
             };
@@ -325,8 +327,8 @@ namespace GLGraph.NET {
             var adjustedMajorTick = _leftTickBar.AdjustedMajorTick(Window);
             var start = TickBar.VerticalStart(Window, adjustedMajorTick);
             for (var i = start; i < Window.Top; i += adjustedMajorTick) {
-                var r = new Point(0, i + new Point(0,50).ToView(Window).Y).ToScreen(Window);
-                GL.Vertex2(50, r.Y);
+                var r = new Point(0, i + YOffset).ToScreen(Window);
+                GL.Vertex2(LeftMargin, r.Y);
                 GL.Vertex2(Window.WindowWidth, r.Y);
             }
             GL.End();
@@ -339,8 +341,8 @@ namespace GLGraph.NET {
             var adjustedMajorTick = _bottomTickBar.AdjustedMajorTick(Window);
             var start = TickBar.HorizontalStart(Window, adjustedMajorTick);
             for (var i = start; i < Window.Finish; i += adjustedMajorTick) {
-                var r = new Point(i + new Point(50,0).ToView(Window).X, 0).ToScreen(Window);
-                GL.Vertex2(r.X, 50);
+                var r = new Point(i + XOffset, 0).ToScreen(Window);
+                GL.Vertex2(r.X, BottomMargin);
                 GL.Vertex2(r.X, Window.WindowHeight);
             }
             GL.End();
@@ -348,8 +350,8 @@ namespace GLGraph.NET {
 
         void DataMode() {
             GL.LoadIdentity();
-            var xoffset = new Point(50, 0).ToView(Window).X;
-            var yoffset = new Point(0, 50).ToView(Window).Y;
+            var xoffset = XOffset;
+            var yoffset = YOffset;
             GL.Ortho(Window.Start - xoffset, Window.Finish - xoffset, Window.Bottom - yoffset , Window.Top - yoffset, -1, 1);
         }
 
@@ -374,8 +376,17 @@ namespace GLGraph.NET {
             LoadDisplayList(e.Line);
         }
 
+        public double LeftMargin { get { return 50; } }
+        public double BottomMargin { get { return 50; } }
+
+        public double XOffset {
+            get { return new Point(LeftMargin, 0).ToView(Window).X; }
+        }
+
+        public double YOffset {
+            get { return new Point(0, BottomMargin).ToView(Window).Y; }
+        }
 
     }
-
 
 }
