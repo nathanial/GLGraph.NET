@@ -61,11 +61,14 @@ namespace GLGraph.NET {
 
             if (Math.Abs(window.WindowWidth) >= 0.001 && Math.Abs(window.WindowHeight) >= 0.001) {
                 GL.Color3(0.0f, 0.0f, 0.0f);
+                GL.LineWidth(1.0f);
                 GL.Begin(BeginMode.Lines);
                 double margin = _orientation == TickBarOrientation.Vertical ? _graph.LeftMargin : _graph.BottomMargin;
+                GL.Color3(System.Drawing.Color.Black);
                 OpenGL.DrawMany(start(major), end, major, i => line((int) (margin - 20), i));
                 OpenGL.DrawMany(start(minor), end, minor, i => i % major == 0 ? new Point[] { } : line((int) (margin - 10), i));
                 GL.End();
+                GL.LineWidth(1.0f);
             }
         }
 

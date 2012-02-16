@@ -167,6 +167,8 @@ namespace GLGraph.NET {
             WindowMode();
             _bottomTickBar.Draw(Window);
             _leftTickBar.Draw(Window);
+            DrawDeadSpace();
+            
 
             _glcontrol.SwapBuffers();
         }
@@ -229,6 +231,12 @@ namespace GLGraph.NET {
             if (draw) {
                 Draw();
             }
+        }
+
+        void DrawDeadSpace() {
+            GL.Color3(System.Drawing.Color.White);
+            OpenGL.DrawQuad(new Point(0,50),new Point(50,50),
+                            new Point(50,0), new Point(0,0));
         }
 
         void AddLine(Line line) {
