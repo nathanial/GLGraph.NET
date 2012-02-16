@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using OpenTK.Graphics.OpenGL;
+using SharpGL;
 
 namespace GLGraph.NET {
 
@@ -24,8 +24,8 @@ namespace GLGraph.NET {
             _orientation = orientation;
         }
 
-        public void Draw(GraphWindow window) {
-            _textRenderer = _textRenderer ?? new GDIOpenGLTextRenderer();
+        public void Draw(OpenGL gl, GraphWindow window) {
+            _textRenderer = _textRenderer ?? new GDIOpenGLTextRenderer(gl);
             Point origin;
             GLSize size;
             Func<int, int, Point[]> line;
@@ -54,18 +54,18 @@ namespace GLGraph.NET {
             if (_graph.TextEnabled) {
                 var labels = Functions.SelectOver(start(major), end, major, labelFunc);
                 var rect = new GLRectangle(_white, true, origin, size);
-                rect.Draw();
+                rect.Draw(gl);
                 _textRenderer.AddText(labels);
-                _textRenderer.Draw(WidthForOrientation(window), HeightForOrientation(window), rect);
+                _textRenderer.Draw(gl, WidthForOrientation(window), HeightForOrientation(window), rect);
             }
 
             if (Math.Abs(window.WindowWidth) >= 0.001 && Math.Abs(window.WindowHeight) >= 0.001) {
-                GL.Color3(0.0f, 0.0f, 0.0f);
-                GL.Begin(BeginMode.Lines);
+                gl.Color(0.0f, 0.0f, 0.0f);
+                gl.Begin(OpenGL.GL_LINES);
                 double margin = _orientation == TickBarOrientation.Vertical ? _graph.LeftMargin : _graph.BottomMargin;
-                OpenGL.DrawMany(start(major), end, major, i => line((int) (margin - 20), i));
-                OpenGL.DrawMany(start(minor), end, minor, i => i % major == 0 ? new Point[] { } : line((int) (margin - 10), i));
-                GL.End();
+                gl.DrawMany(start(major), end, major, i => line((int) (margin - 20), i));
+                gl.DrawMany(start(minor), end, minor, i => i % major == 0 ? new Point[] { } : line((int) (margin - 10), i));
+                gl.End();
             }
         }
 
@@ -137,8 +137,8 @@ namespace GLGraph.NET {
             };
         }
 
-        public void Dispose() {
-            _textRenderer.Dispose();
+        public void Dispose(OpenGL gl) {
+            _textRenderer.Dispose(gl);
         }
     }
 

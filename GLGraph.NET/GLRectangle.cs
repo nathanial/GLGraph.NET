@@ -1,5 +1,5 @@
 using System.Windows;
-using OpenTK.Graphics.OpenGL;
+using SharpGL;
 
 namespace GLGraph.NET {
     public class GLRectangle {
@@ -21,14 +21,14 @@ namespace GLGraph.NET {
             _color = color;
         }
 
-        public void Draw() {
-            _color.Draw();
-            DrawCore();
+        public void Draw(OpenGL gl) {
+            _color.Draw(gl);
+            DrawCore(gl);
         }
 
-        public void DrawFaded() {
-            _color.DrawFaded();
-            DrawCore();
+        public void DrawFaded(OpenGL gl) {
+            _color.DrawFaded(gl);
+            DrawCore(gl);
         }
 
         public Point TopLeft {
@@ -51,13 +51,13 @@ namespace GLGraph.NET {
             get { return new Size(Width, Height); }
         }
 
-        void DrawCore() {
-            OpenGL.DrawQuad(
+        void DrawCore(OpenGL gl) {
+            gl.DrawQuad(
                 TopLeft, TopRight,
                 BottomRight, BottomLeft);
 
-            GL.Color3(0.0f, 0.0f, 0.0f);
-            OpenGL.DrawLines(
+            gl.Color(0.0f, 0.0f, 0.0f);
+            gl.DrawLines(
                 _origin.X, _origin.Y,
                 _origin.X, _origin.Y + _size.Height,
                 _origin.X, _origin.Y + _size.Height,

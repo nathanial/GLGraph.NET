@@ -1,52 +1,52 @@
 using System;
 using System.Windows;
-using OpenTK.Graphics.OpenGL;
+using SharpGL;
 
 namespace GLGraph.NET {
-    public static class OpenGL {
-        public static void DrawQuad(Point topLeft, Point topRight, Point bottomRight, Point bottomLeft) {
-            GL.Begin(BeginMode.Quads);
-            GL.Vertex2(topLeft.X, topLeft.Y);
-            GL.Vertex2(topRight.X, topRight.Y);
-            GL.Vertex2(bottomRight.X, bottomRight.Y);
-            GL.Vertex2(bottomLeft.X, bottomLeft.Y);
-            GL.End();
+    public static class OpenGLExtensions {
+        public static void DrawQuad(this OpenGL gl, Point topLeft, Point topRight, Point bottomRight, Point bottomLeft) {
+            gl.Begin(OpenGL.GL_QUADS);
+            gl.Vertex(topLeft.X, topLeft.Y);
+            gl.Vertex(topRight.X, topRight.Y);
+            gl.Vertex(bottomRight.X, bottomRight.Y);
+            gl.Vertex(bottomLeft.X, bottomLeft.Y);
+            gl.End();
         }
 
-        public static void DrawQuad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
-            GL.Begin(BeginMode.Quads);
-            GL.Vertex2(x1, y1);
-            GL.Vertex2(x2, y2);
-            GL.Vertex2(x3, y3);
-            GL.Vertex2(x4, y4);
-            GL.End();
+        public static void DrawQuad(this OpenGL gl, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
+            gl.Begin(OpenGL.GL_QUADS);
+            gl.Vertex(x1, y1);
+            gl.Vertex(x2, y2);
+            gl.Vertex(x3, y3);
+            gl.Vertex(x4, y4);
+            gl.End();
         }
 
-        public static void DrawQuad(params double[] points) {
-            GL.Begin(BeginMode.Quads);
-            GL.Vertex2(points[0], points[1]);
-            GL.Vertex2(points[2], points[3]);
-            GL.Vertex2(points[4], points[5]);
-            GL.Vertex2(points[6], points[7]);
-            GL.End();
+        public static void DrawQuad(this OpenGL gl, params double[] points) {
+            gl.Begin(OpenGL.GL_QUADS);
+            gl.Vertex(points[0], points[1]);
+            gl.Vertex(points[2], points[3]);
+            gl.Vertex(points[4], points[5]);
+            gl.Vertex(points[6], points[7]);
+            gl.End();
         }
 
-        public static void DrawLines(params double[] points) {
-            GL.Begin(BeginMode.Lines);
+        public static void DrawLines(this OpenGL gl, params double[] points) {
+            gl.Begin(OpenGL.GL_LINES);
             for (var i = 0; i < points.Length; i += 2) {
-                GL.Vertex2(points[i], points[i + 1]);
+                gl.Vertex(points[i], points[i + 1]);
             }
-            GL.End();
+            gl.End();
         }
 
-        public static void DrawVertices(Point[] points) {
+        public static void DrawVertices(this OpenGL gl, Point[] points) {
             foreach (var p in points) {
-                GL.Vertex2(p.X, p.Y);
+                gl.Vertex(p.X, p.Y);
             }
         }
 
-        public static void DrawMany(int start, int finish, int step, Func<int, Point[]> fun) {
-            DrawVertices(Functions.SelectOverMany(start, finish, step, fun));
+        public static void DrawMany(this OpenGL gl, int start, int finish, int step, Func<int, Point[]> fun) {
+            gl.DrawVertices(Functions.SelectOverMany(start, finish, step, fun));
         }
     }
 }

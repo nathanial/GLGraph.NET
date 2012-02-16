@@ -1,24 +1,24 @@
 using System;
-using OpenTK.Graphics.OpenGL;
+using SharpGL;
 
 namespace GLGraph.NET {
 
-    public class DisplayList : IDisposable {
-        readonly int _id;
+    public class DisplayList {
+        readonly uint _id;
 
-        public DisplayList(Action listInstructions) {
+        public DisplayList(OpenGL gl, Action listInstructions) {
             _id = Pools.DisplayListPool.Take();
-            GL.NewList(_id, ListMode.Compile);
+            gl.NewList(_id, OpenGL.GL_COMPILE);
             listInstructions();
-            GL.EndList();
+            gl.EndList();
         }
 
-        public void Draw() {
-            GL.CallList(_id);
+        public void Draw(OpenGL gl) {
+            gl.CallList(_id);
         }
 
-        public void Dispose() {
-            GL.DeleteLists(_id, 1);
+        public void Dispose(OpenGL gl) {
+            gl.DeleteLists(_id, 1);
             Pools.DisplayListPool.Return(_id);
         }
     }

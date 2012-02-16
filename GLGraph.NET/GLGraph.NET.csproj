@@ -11,7 +11,8 @@
     <RootNamespace>GLGraph.NET</RootNamespace>
     <AssemblyName>GLGraph.NET</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -125,13 +126,11 @@
     <Reference Include="C5, Version=2.0.4398.23817, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\dchem\desktop\packages\C5.2.0.4398.23817\lib\net40\C5.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\OpenTK.dll</HintPath>
+    <Reference Include="SharpGL">
+      <HintPath>..\lib\SharpGL.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK.GLControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\OpenTK.GLControl.dll</HintPath>
+    <Reference Include="SharpGL.WPF">
+      <HintPath>..\lib\SharpGL.WPF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />

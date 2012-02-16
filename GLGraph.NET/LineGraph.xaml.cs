@@ -5,8 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
+using SharpGL;
 
 namespace GLGraph.NET {
 
@@ -52,8 +51,8 @@ namespace GLGraph.NET {
         public Point DataOrigin;
         public double DataWidth;
         public double DataHeight;
-        public int WindowHeight;
-        public int WindowWidth;
+        public double WindowHeight;
+        public double WindowWidth;
 
         public double Top {
             get { return DataOrigin.Y + DataHeight; }
@@ -96,7 +95,7 @@ namespace GLGraph.NET {
         bool _panningStarted;
         TickBar _leftTickBar;
         TickBar _bottomTickBar;
-        int _xstart, _ystart;
+        double _xstart, _ystart;
 
         GraphWindow Window { get; set; }
 
@@ -105,21 +104,21 @@ namespace GLGraph.NET {
 
         public bool TextEnabled { get; set; }
 
-        GLControl _glcontrol;
         const string ZeroError = "WindowWidth cannot be zero, consider initializing LineGraph in the host's Loaded event";
+
+        OpenGL _gl;
 
         public LineGraph() {
             InitializeComponent();
             if (DesignerProperties.GetIsInDesignMode(this)) return;
             TextEnabled = true;
             SnapsToDevicePixels = true;
-            InitializeUserControl();
-            InitializeOpenGL();
+
 
             _lines.CollectionChanged += (s, args) => {
                 if (args.Action == NotifyCollectionChangedAction.Reset) {
                     foreach (var d in _displayLists.Values) {
-                        d.Dispose();
+                        d.Dispose(_gl);
                     }
                     _displayLists.Clear();
                 }
@@ -138,21 +137,20 @@ namespace GLGraph.NET {
 
         public void Cleanup() {
             foreach (var dl in _displayLists.Values) {
-                dl.Dispose();
+                dl.Dispose(_gl);
             }
-            _leftTickBar.Dispose();
-            _bottomTickBar.Dispose();
-            _glcontrol.Dispose();
+            _leftTickBar.Dispose(_gl);
+            _bottomTickBar.Dispose(_gl);
         }
 
         public void Draw() {
             if (Window == null) return;
             if (Window.WindowWidth == 0 || Window.WindowHeight == 0) return;
-            _glcontrol.MakeCurrent();
+            _gl.MakeCurrent();
 
-            GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.MatrixMode(MatrixMode.Projection);
+            _gl.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            _gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
+            _gl.MatrixMode(OpenGL.GL_PROJECTION);
 
             WindowMode();
             DrawHorizontalCrossBars();
@@ -160,18 +158,18 @@ namespace GLGraph.NET {
 
             DataMode();
             foreach (var dl in _displayLists.Values) {
-                dl.Draw();
+                dl.Draw(_gl);
             }
             foreach (var m in _markers) m.Draw(Window);
 
             WindowMode();
-            _bottomTickBar.Draw(Window);
-            _leftTickBar.Draw(Window);
+            _bottomTickBar.Draw(_gl,Window);
+            _leftTickBar.Draw(_gl,Window);
 
-            _glcontrol.SwapBuffers();
+            _gl.Flush();
         }
 
-        public void StartPan(int xpos, int ypos) {
+        public void StartPan(double xpos, double ypos) {
             _panningStarted = true;
             _xstart = xpos;
             _ystart = ypos;
@@ -181,7 +179,7 @@ namespace GLGraph.NET {
             _panningStarted = false;
         }
 
-        public void Pan(int xpos, int ypos) {
+        public void Pan(double xpos, double ypos) {
             if (!_panningStarted) return;
             var xoffset = -(((xpos - _xstart) / (Window.WindowWidth * 1.0)) * (Window.DataWidth));
             var yoffset = ((ypos - _ystart) / (Window.WindowHeight * 1.0)) * (Window.DataHeight);
@@ -223,7 +221,7 @@ namespace GLGraph.NET {
             if (Window.WindowHeight == 0) throw new Exception(ZeroError);
 
 
-            _glcontrol.MakeCurrent();
+            _gl.MakeCurrent();
 
             LoadDisplayLists();
             if (draw) {
@@ -238,41 +236,30 @@ namespace GLGraph.NET {
 
         void RemoveLine(Line line) {
             var dl = _displayLists[line];
-            dl.Dispose();
+            dl.Dispose(_gl);
             _displayLists.Remove(line);
             line.Changed -= LineChanged;
         }
 
         void InitializeUserControl() {
-            _glcontrol = new GLControl();
-            Child = _glcontrol;
-            _glcontrol.Resize += (s, args) => SetWindowSize(_glcontrol.Width, _glcontrol.Height);
-            _glcontrol.MouseDown += (s, args) => StartPan(args.X, args.Y);
-            _glcontrol.MouseMove += (s, args) => Pan(args.X, args.Y);
-            _glcontrol.MouseUp += (s, args) => StopPan();
-            _glcontrol.MouseWheel += (s, args) => Zoom(args.Delta);
-            _glcontrol.Paint += (s, args) => Draw();
+            SizeChanged += (s, args) => SetWindowSize(ActualWidth, ActualHeight);
+            MouseDown += (s, args) => StartPan(args.GetPosition(this).X, args.GetPosition(this).Y);
+            MouseMove += (s, args) => Pan(args.GetPosition(this).X, args.GetPosition(this).Y);
+            MouseUp += (s, args) => StopPan();
+            MouseWheel += (s, args) => Zoom(args.Delta);
+            //GraphWindow += (s, args) => Draw();
             Loaded += (s, args) => Draw();
+            
         }
 
 
-        float _lineMin;
-        float _lineMax;
-        float _lineGranularity;
-
         void InitializeOpenGL() {
-            _glcontrol.MakeCurrent();
-            var range = new float[2];
-            GL.GetFloat(GetPName.SmoothLineWidthRange, range);
-            _lineMin = range[0];
-            _lineMax = range[1];
-            GL.GetFloat(GetPName.SmoothLineWidthGranularity, out _lineGranularity);
-
-            GL.Enable(EnableCap.Texture2D);
-            GL.Enable(EnableCap.LineSmooth);
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Hint(HintTarget.LineSmoothHint, HintMode.DontCare);
+            _gl.MakeCurrent();
+            _gl.Enable(OpenGL.GL_TEXTURE_2D);
+            _gl.Enable(OpenGL.GL_LINE_SMOOTH);
+            _gl.Enable(OpenGL.GL_BLEND);
+            _gl.BlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA); //maybe wrong
+            _gl.Hint(OpenGL.GL_LINE_SMOOTH, OpenGL.GL_DONT_CARE);
 
             _leftTickBar = new TickBar(this,TickBarOrientation.Vertical) {
                 MinorTick = 1,
@@ -284,20 +271,20 @@ namespace GLGraph.NET {
             };
         }
 
-        void SetWindowSize(int windowWidth, int windowHeight) {
+        void SetWindowSize(double windowWidth, double windowHeight) {
             if (Window != null) {
                 Window.WindowWidth = windowWidth;
                 Window.WindowHeight = windowHeight;
             }
-            _glcontrol.MakeCurrent();
-            GL.Viewport(0, 0, windowWidth, windowHeight);
-            GL.Flush();
+            _gl.MakeCurrent();
+            _gl.Viewport(0, 0, (int)windowWidth, (int)windowHeight);
+            _gl.Flush();
             Draw();
         }
 
         void LoadDisplayLists() {
             foreach (var dl in _displayLists.Values) {
-                dl.Dispose();
+                dl.Dispose(_gl);
             }
             _displayLists.Clear();
 
@@ -307,76 +294,68 @@ namespace GLGraph.NET {
         }
 
         void LoadDisplayList(Line line) {
-            _displayLists[line] = new DisplayList(() => {
-                GL.LineWidth(ConstrainThickness(line.Thickness));
-                GL.Begin(BeginMode.Lines);
+            _displayLists[line] = new DisplayList(_gl, () => {
+                _gl.LineWidth(line.Thickness);
+                _gl.Begin(OpenGL.GL_LINES);
                 var size = line.Points.Count;
-                GL.Color4(line.Color.R / 255.0, line.Color.G / 255.0,
+                _gl.Color(line.Color.R / 255.0, line.Color.G / 255.0,
                           line.Color.B / 255.0, line.Color.A / 255.0);
                 for (var j = 0; j < size - 1; j++) {
                     var p1 = line.Points[j];
                     var p2 = line.Points[j + 1];
-                    GL.Vertex2(p1.X, p1.Y);
-                    GL.Vertex2(p2.X, p2.Y);
+                    _gl.Vertex(p1.X, p1.Y);
+                    _gl.Vertex(p2.X, p2.Y);
                 }
-                GL.End();
-                GL.LineWidth(_lineMin);
+                _gl.End();
+                _gl.LineWidth(1.0f);
             });
         }
 
 
         void DrawHorizontalCrossBars() {
             if (Math.Abs(Window.WindowHeight) < 0.001 || Math.Abs(Window.WindowWidth) < 0.001) return;
-            GL.Color3(0.878f, 0.878f, 0.878f);
-            GL.Begin(BeginMode.Lines);
+            _gl.Color(0.878f, 0.878f, 0.878f);
+            _gl.Begin(OpenGL.GL_LINES);
             var adjustedMajorTick = _leftTickBar.AdjustedMajorTick(Window);
             var start = TickBar.VerticalStart(Window, adjustedMajorTick);
             for (var i = start; i < Window.Top; i += adjustedMajorTick) {
                 var r = new Point(0, i + YOffset).ToScreen(Window);
-                GL.Vertex2(LeftMargin, r.Y);
-                GL.Vertex2(Window.WindowWidth, r.Y);
+                _gl.Vertex(LeftMargin, r.Y);
+                _gl.Vertex(Window.WindowWidth, r.Y);
             }
-            GL.End();
+            _gl.End();
         }
 
         void DrawVerticalCrossBars() {
             if (Math.Abs(Window.WindowHeight) < 0.001 || Math.Abs(Window.WindowWidth) < 0.001) return;
-            GL.Color3(0.878f, 0.878f, 0.878f);
-            GL.Begin(BeginMode.Lines);
+            _gl.Color(0.878f, 0.878f, 0.878f);
+            _gl.Begin(OpenGL.GL_LINES);
             var adjustedMajorTick = _bottomTickBar.AdjustedMajorTick(Window);
             var start = TickBar.HorizontalStart(Window, adjustedMajorTick);
             for (var i = start; i < Window.Finish; i += adjustedMajorTick) {
                 var r = new Point(i + XOffset, 0).ToScreen(Window);
-                GL.Vertex2(r.X, BottomMargin);
-                GL.Vertex2(r.X, Window.WindowHeight);
+                _gl.Vertex(r.X, BottomMargin);
+                _gl.Vertex(r.X, Window.WindowHeight);
             }
-            GL.End();
+            _gl.End();
         }
 
         void DataMode() {
-            GL.LoadIdentity();
+            _gl.LoadIdentity();
             var xoffset = XOffset;
             var yoffset = YOffset;
-            GL.Ortho(Window.Start - xoffset, Window.Finish - xoffset, Window.Bottom - yoffset , Window.Top - yoffset, -1, 1);
+            _gl.Ortho(Window.Start - xoffset, Window.Finish - xoffset, Window.Bottom - yoffset , Window.Top - yoffset, -1, 1);
         }
 
         void WindowMode() {
-            GL.LoadIdentity();
-            GL.Ortho(0, Window.WindowWidth, 0, Window.WindowHeight, -1, 1);
-        }
-
-
-        float ConstrainThickness(float thickness) {
-            var t = Math.Min(Math.Max(thickness, _lineMin), _lineMax);
-            var step = ((int)(t * 10)) / ((int)(_lineGranularity * 10));
-            var r = step * _lineGranularity;
-            return r;
+            _gl.LoadIdentity();
+            _gl.Ortho(0, Window.WindowWidth, 0, Window.WindowHeight, -1, 1);
         }
 
 
         void LineChanged(object sender, LineChangedEventArgs e) {
             var dl = _displayLists[e.Line];
-            dl.Dispose();
+            dl.Dispose(_gl);
             _displayLists.Remove(e.Line);
             LoadDisplayList(e.Line);
         }
@@ -392,6 +371,15 @@ namespace GLGraph.NET {
             get { return new Point(0, BottomMargin).ToView(Window).Y; }
         }
 
+        void OpenGLControlOpenGLDraw(object sender, OpenGLEventArgs args) {
+            Draw();
+        }
+
+        void OpenGLControlOpenGLInitialized(object sender, OpenGLEventArgs args) {
+            _gl = args.OpenGL;
+            InitializeUserControl();
+            InitializeOpenGL();
+        }
     }
 
 }

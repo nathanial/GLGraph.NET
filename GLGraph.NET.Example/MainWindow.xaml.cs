@@ -11,8 +11,8 @@ namespace GLGraph.NET.Example {
             if (DesignerProperties.GetIsInDesignMode(this)) return;
 
             Loaded += delegate {
-                ShowDynamicGraph();
-                //ShowStaticGraph();
+                //ShowDynamicGraph();
+                ShowStaticGraph();
             };
         }
 

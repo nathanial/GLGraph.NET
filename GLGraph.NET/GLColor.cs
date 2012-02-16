@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL;
+using SharpGL;
 
 namespace GLGraph.NET {
     public class GLColor {
@@ -15,12 +15,12 @@ namespace GLGraph.NET {
             _b = b;
         }
 
-        public void Draw() {
-            GL.Color4(_r, _g, _b, _a);
+        public void Draw(OpenGL gl) {
+            gl.Color(_r, _g, _b, _a);
         }
 
-        public void DrawFaded() {
-            GL.Color4(_r,_g,_b,0.1);
+        public void DrawFaded(OpenGL gl) {
+            gl.Color(_r,_g,_b,0.1);
         }
     }
 }

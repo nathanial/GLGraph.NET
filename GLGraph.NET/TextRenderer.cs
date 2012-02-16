@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using OpenTK.Graphics.OpenGL;
-using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
+using SharpGL;
 
 namespace GLGraph.NET {
     public class PieceOfText {
@@ -19,13 +18,15 @@ namespace GLGraph.NET {
 
 
     public class GDIOpenGLTextRenderer {
-        readonly int _textTexture;
+        readonly uint _textTexture;
         readonly List<PieceOfText> _piecesOfText = new List<PieceOfText>();
         readonly Font _font;
 
-        public GDIOpenGLTextRenderer() {
+        public GDIOpenGLTextRenderer(OpenGL gl) {
             _font = new Font("Arial", 10);
-            _textTexture = GL.GenTexture();
+            var buf = new uint[1];
+            gl.GenTextures(1, buf);
+            _textTexture = buf[0];
         }
 
         public void AddText(IList<PieceOfText> piecesOfText) {
@@ -33,7 +34,7 @@ namespace GLGraph.NET {
             _piecesOfText.AddRange(piecesOfText);
         }
 
-        public void Draw(int width, int height, GLRectangle rect) {
+        public void Draw(OpenGL gl, int width, int height, GLRectangle rect) {
             var bmp = new Bitmap(width, height);
             using (var g = Graphics.FromImage(bmp)) {
                 g.Clear(Color.Transparent);
@@ -43,16 +44,15 @@ namespace GLGraph.NET {
                 }
             }
 
-            GL.BindTexture(TextureTarget.Texture2D, _textTexture);
+            gl.BindTexture(OpenGL.GL_TEXTURE_2D, _textTexture);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
+            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);
+            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR);
 
 
             var data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0,
-                PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            gl.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, (int)OpenGL.GL_RGBA, width, height, 0, OpenGL.GL_BGRA, OpenGL.GL_UNSIGNED_BYTE, data.Scan0);
 
             bmp.UnlockBits(data);
 
@@ -61,18 +61,18 @@ namespace GLGraph.NET {
             var y2 = rect.BottomRight.Y;
             var y3 = rect.BottomLeft.Y;
 
-            GL.Begin(BeginMode.Quads);
-            GL.TexCoord2(0f, 0f); GL.Vertex2(rect.TopLeft.X, y0);
-            GL.TexCoord2(1f, 0f); GL.Vertex2(rect.TopRight.X, y1);
-            GL.TexCoord2(1f, 1f); GL.Vertex2(rect.BottomRight.X, y2);
-            GL.TexCoord2(0f, 1f); GL.Vertex2(rect.BottomLeft.X, y3);
-            GL.End();
+            gl.Begin(OpenGL.GL_QUADS);
+            gl.TexCoord(0f, 0f); gl.Vertex(rect.TopLeft.X, y0);
+            gl.TexCoord(1f, 0f); gl.Vertex(rect.TopRight.X, y1);
+            gl.TexCoord(1f, 1f); gl.Vertex(rect.BottomRight.X, y2);
+            gl.TexCoord(0f, 1f); gl.Vertex(rect.BottomLeft.X, y3);
+            gl.End();
 
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+            gl.BindTexture(OpenGL.GL_TEXTURE_2D, 0);
         }
 
-        public void Dispose() {
-            GL.DeleteTexture(_textTexture);
+        public void Dispose(OpenGL gl) {
+            gl.DeleteTextures(1, new uint[]{_textTexture});
         }
 
     }
