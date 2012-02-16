@@ -33,19 +33,19 @@ namespace GLGraph.NET {
             var minor = AdjustedMinorTick(window);
 
             if (_orientation == TickBarOrientation.Vertical) {
-                origin = new Point(0, 0);
-                size = new GLSize(50, window.WindowHeight);
+                origin = new Point(0, 50);
+                size = new GLSize(50, window.WindowHeight-50);
                 start = t => VerticalStart(window, t);
                 end = (int)window.Top;
                 line = (l, i) => CreateVerticalLine(window, i, 50, l);
-                labelFunc = i => new PieceOfText(0, new Point(0, i).ToScreen(window).Y + 7.5, i.ToString());
+                labelFunc = i => new PieceOfText(0, new Point(0, i).ToScreen(window).Y - 50 + 7.5, i.ToString());
             } else {
-                origin = new Point(0, 0);
-                size = new GLSize(window.WindowWidth, 50);
+                origin = new Point(50, 0);
+                size = new GLSize(window.WindowWidth-50, 50);
                 start = t => HorizontalStart(window, t);
                 end = (int)window.Finish;
                 line = (l, i) => CreateHorizontalLine(window, i, 50, l);
-                labelFunc = i => new PieceOfText(new Point(i, 0).ToScreen(window).X - ((i.ToString().Length / 2.0) * 8), 30, i.ToString());
+                labelFunc = i => new PieceOfText(new Point(i, 0).ToScreen(window).X - 50 - ((i.ToString().Length / 2.0) * 8), 30, i.ToString());
             }
 
             var labels = Functions.SelectOver(start(major), end, major, labelFunc);
@@ -84,11 +84,11 @@ namespace GLGraph.NET {
         }
 
         int WidthForOrientation(GraphWindow window) {
-            return _orientation == TickBarOrientation.Horizontal ? window.WindowWidth : 50;
+            return _orientation == TickBarOrientation.Horizontal ? window.WindowWidth - 50 : 50;
         }
 
         int HeightForOrientation(GraphWindow window) {
-            return _orientation == TickBarOrientation.Vertical ? window.WindowHeight : 50;
+            return _orientation == TickBarOrientation.Vertical ? window.WindowHeight - 50 : 50;
         }
 
         public int AdjustedMajorTick(GraphWindow window) {
