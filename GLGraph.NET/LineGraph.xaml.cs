@@ -214,9 +214,6 @@ namespace GLGraph.NET {
             if (Window.WindowWidth == 0) throw new Exception(ZeroError);
             if (Window.WindowHeight == 0) throw new Exception(ZeroError);
 
-            //var xoffset = new Point(-60, 0).ToView(Window).X;
-            //Window.Start += xoffset;
-            //Window.Finish += xoffset;
 
             _glcontrol.MakeCurrent();
 
@@ -328,7 +325,7 @@ namespace GLGraph.NET {
             var adjustedMajorTick = _leftTickBar.AdjustedMajorTick(Window);
             var start = TickBar.VerticalStart(Window, adjustedMajorTick);
             for (var i = start; i < Window.Top; i += adjustedMajorTick) {
-                var r = new Point(0, i).ToScreen(Window);
+                var r = new Point(0, i + new Point(0,50).ToView(Window).Y).ToScreen(Window);
                 GL.Vertex2(50, r.Y);
                 GL.Vertex2(Window.WindowWidth, r.Y);
             }
@@ -342,7 +339,7 @@ namespace GLGraph.NET {
             var adjustedMajorTick = _bottomTickBar.AdjustedMajorTick(Window);
             var start = TickBar.HorizontalStart(Window, adjustedMajorTick);
             for (var i = start; i < Window.Finish; i += adjustedMajorTick) {
-                var r = new Point(i, 0).ToScreen(Window);
+                var r = new Point(i + new Point(50,0).ToView(Window).X, 0).ToScreen(Window);
                 GL.Vertex2(r.X, 50);
                 GL.Vertex2(r.X, Window.WindowHeight);
             }
@@ -353,7 +350,7 @@ namespace GLGraph.NET {
             GL.LoadIdentity();
             var xoffset = new Point(50, 0).ToView(Window).X;
             var yoffset = new Point(0, 50).ToView(Window).Y;
-            GL.Ortho(Window.Start, Window.Finish, Window.Bottom - yoffset , Window.Top - yoffset, -1, 1);
+            GL.Ortho(Window.Start - xoffset, Window.Finish - xoffset, Window.Bottom - yoffset , Window.Top - yoffset, -1, 1);
         }
 
         void WindowMode() {

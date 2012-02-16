@@ -45,7 +45,7 @@ namespace GLGraph.NET {
                 start = t => HorizontalStart(window, t);
                 end = (int)window.Finish;
                 line = (l, i) => CreateHorizontalLine(window, i, 50, l);
-                labelFunc = i => new PieceOfText(new Point(i, 0).ToScreen(window).X - 50 - ((i.ToString().Length / 2.0) * 8), 30, i.ToString());
+                labelFunc = i => new PieceOfText(new Point(i + new Point(50,0).ToView(window).X, 0).ToScreen(window).X - 50 - ((i.ToString().Length / 2.0) * 8), 30, i.ToString());
             }
 
             var labels = Functions.SelectOver(start(major), end, major, labelFunc);
@@ -116,7 +116,7 @@ namespace GLGraph.NET {
         }
 
         static Point[] CreateHorizontalLine(GraphWindow window, int i, int y1, int y2) {
-            var r = new Point(i, 0).ToScreen(window);
+            var r = new Point(i + new Point(50,0).ToView(window).X, 0).ToScreen(window);
             return new[] {
                 new Point(r.X, y1),
                 new Point(r.X, y2)  
