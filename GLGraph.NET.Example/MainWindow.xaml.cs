@@ -11,8 +11,8 @@ namespace GLGraph.NET.Example {
             if (DesignerProperties.GetIsInDesignMode(this)) return;
 
             Loaded += delegate {
-                //ShowDynamicGraph();
-                ShowStaticGraph();
+                ShowDynamicGraph();
+                //ShowStaticGraph();
             };
         }
 
@@ -29,7 +29,10 @@ namespace GLGraph.NET.Example {
         }
 
         DispatcherTimer _timer;
+
         void ShowDynamicGraph() {
+            graph.TextEnabled = false;
+
             var line1 = new Line(1.0f, Colors.Red, new Point[] { });
             var line2 = new Line(1.0f, Colors.Green, new Point[] { });
             var line3 = new Line(1.0f, Colors.Blue, new Point[] { });
@@ -49,11 +52,11 @@ namespace GLGraph.NET.Example {
 
                 i++;
 
-                //if (i >= (rect.Width + rect.X)) {
-                //    var d = (i - (rect.Width + rect.X));
-                //    rect = new Rect(rect.X + d, rect.Y, rect.Width, rect.Height);
-                //    graph.Display(rect, false);
-                //}
+                if (i >= (rect.Width + rect.X)) {
+                    var d = (i - (rect.Width + rect.X));
+                    rect = new Rect(rect.X + d, rect.Y, rect.Width, rect.Height);
+                    graph.Display(rect, false);
+                }
                 graph.Draw();
             };
             _timer.Start();

@@ -51,11 +51,13 @@ namespace GLGraph.NET {
                 labelFunc = i => new PieceOfText(new Point(i + _graph.XOffset, 0).ToScreen(window).X - _graph.LeftMargin - ((i.ToString().Length / 2.0) * 8), 30, i.ToString());
             }
 
-            var labels = Functions.SelectOver(start(major), end, major, labelFunc);
-            var rect = new GLRectangle(_white, true, origin, size);
-            rect.Draw();
-            _textRenderer.AddText(labels);
-            _textRenderer.Draw(WidthForOrientation(window), HeightForOrientation(window), rect);
+            if (_graph.TextEnabled) {
+                var labels = Functions.SelectOver(start(major), end, major, labelFunc);
+                var rect = new GLRectangle(_white, true, origin, size);
+                rect.Draw();
+                _textRenderer.AddText(labels);
+                _textRenderer.Draw(WidthForOrientation(window), HeightForOrientation(window), rect);
+            }
 
             if (Math.Abs(window.WindowWidth) >= 0.001 && Math.Abs(window.WindowHeight) >= 0.001) {
                 GL.Color3(0.0f, 0.0f, 0.0f);

@@ -84,6 +84,8 @@ namespace GLGraph.NET {
         double BottomMargin { get; }
         double XOffset { get; }
         double YOffset { get; }
+
+        bool TextEnabled { get; set; }
     }
 
     public partial class LineGraph : ILineGraph {
@@ -101,12 +103,15 @@ namespace GLGraph.NET {
         public ObservableCollection<IDrawable> Markers { get { return _markers; } }
         public ObservableCollection<Line> Lines { get { return _lines; } }
 
+        public bool TextEnabled { get; set; }
+
         GLControl _glcontrol;
         const string ZeroError = "WindowWidth cannot be zero, consider initializing LineGraph in the host's Loaded event";
 
         public LineGraph() {
             InitializeComponent();
             if (DesignerProperties.GetIsInDesignMode(this)) return;
+            TextEnabled = true;
             SnapsToDevicePixels = true;
             InitializeUserControl();
             InitializeOpenGL();
