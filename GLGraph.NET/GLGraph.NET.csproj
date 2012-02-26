@@ -149,6 +149,7 @@
   <ItemGroup>
     <Compile Include="DisplayList.cs" />
     <Compile Include="Drawable.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="GLColor.cs" />
     <Compile Include="GLRectangle.cs" />

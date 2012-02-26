@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using OpenTK;
@@ -89,8 +90,8 @@ namespace GLGraph.NET {
         readonly IDictionary<Line, DisplayList> _displayLists = new Dictionary<Line, DisplayList>();
 
         bool _panningStarted;
-        TickBar _leftTickBar;
-        TickBar _bottomTickBar;
+        ITickBar _leftTickBar;
+        ITickBar _bottomTickBar;
         int _xstart, _ystart;
 
         GraphWindow Window { get; set; }
@@ -150,26 +151,9 @@ namespace GLGraph.NET {
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
 
-            HorizontalCrossBarMode();
-            DrawHorizontalCrossBars();
-
-            VerticalCrossBarMode();
-            DrawVerticalCrossBars();
-
-            DataMode();
-            foreach (var dl in _displayLists.Values) {
-                dl.Draw();
-            }
-            foreach (var m in _markers) m.Draw(Window);
-
-            WindowMode();
-            BottomTickMode();
-            _bottomTickBar.Draw(Window);
-            LeftTickMode();
-            _leftTickBar.Draw(Window);
-            WindowMode();
-            DrawDeadSpace();
-            
+            DrawData();
+            DrawMarkers();
+            DrawTicks();
 
             _glcontrol.SwapBuffers();
         }
@@ -285,11 +269,11 @@ namespace GLGraph.NET {
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Hint(HintTarget.LineSmoothHint, HintMode.DontCare);
 
-            _leftTickBar = new TickBar(this,TickBarOrientation.Vertical) {
+            _leftTickBar = new VerticalTickBar{
                 MinorTick = 1,
                 MajorTick = 5
             };
-            _bottomTickBar = new TickBar(this, TickBarOrientation.Horizontal) {
+            _bottomTickBar = new HorizontalTickBar {
                 MinorTick = 1,
                 MajorTick = 5
             };
@@ -336,73 +320,26 @@ namespace GLGraph.NET {
         }
 
 
-        void DrawHorizontalCrossBars() {
-            if (Math.Abs(Window.WindowHeight) < 0.001 || Math.Abs(Window.WindowWidth) < 0.001) return;
-            GL.Color3(0.878f, 0.878f, 0.878f);
-            GL.Begin(BeginMode.Lines);
-            var adjustedMajorTick = _leftTickBar.AdjustedMajorTick(Window);
-            var start = TickBar.VerticalStart(Window, adjustedMajorTick);
-            for (var i = start; i < Window.Top; i += adjustedMajorTick) {
-                GL.Vertex2(Window.Start, i);
-                GL.Vertex2(Window.Finish, i);
-            }
-            GL.End();
-        }
-
-        void DrawVerticalCrossBars() {
-            if (Math.Abs(Window.WindowHeight) < 0.001 || Math.Abs(Window.WindowWidth) < 0.001) return;
-            GL.Color3(0.878f, 0.878f, 0.878f);
-            GL.Begin(BeginMode.Lines);
-            var adjustedMajorTick = _bottomTickBar.AdjustedMajorTick(Window);
-            var start = TickBar.HorizontalStart(Window, adjustedMajorTick);
-            for (var i = start; i < Window.Finish; i += adjustedMajorTick) {
-                GL.Vertex2(i,Window.Bottom);
-                GL.Vertex2(i,Window.Top);
-            }
-            GL.End();
-        }
-
         void DataMode() {
-            GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.Ortho(Window.Start, Window.Finish, Window.Bottom, Window.Top, -1, 1);
-            var xo = new Point(50, 0).ToView(Window).X;
-            var yo = new Point(0,50).ToView(Window).Y;
+            //var xo = new Point(50, 0).ToView(Window).X;
+            //var yo = new Point(0,50).ToView(Window).Y;
+            var xo = 0;
+            var yo = 0;
             GL.Translate(xo,yo,0);
             GL.Scale((Window.DataWidth - xo) / Window.DataWidth, (Window.DataHeight - yo) / Window.DataHeight, 0);
         }
 
-        void WindowMode() {
+        void TickMode() {
             GL.LoadIdentity();
-            GL.Ortho(0, Window.WindowWidth, 0, Window.WindowHeight, -1, 1);
-        }
-
-        void HorizontalCrossBarMode() {
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-            GL.Ortho(Window.Start, Window.Finish, Window.Bottom, Window.Top, -1, 1);
-            var xo = new Point(50, 0).ToView(Window).X;
-            var yo = new Point(0, 50).ToView(Window).Y;
+            GL.Ortho(0,100,Window.Bottom,Window.Top, -1,1);
+            //var xo = new Point(0, 0).ToView(Window).X;
+            //var yo = new Point(0, 50).ToView(Window).Y;
+            var xo = 1.5;
+            var yo = 0;
             GL.Translate(xo, yo, 0);
-            GL.Scale(1, (Window.DataHeight - yo) / Window.DataHeight, 0);
-        }
-
-        void VerticalCrossBarMode() {
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-            GL.Ortho(Window.Start, Window.Finish, Window.Bottom, Window.Top, -1, 1);
-            var xo = new Point(50, 0).ToView(Window).X;
-            var yo = new Point(0, 50).ToView(Window).Y;
-            GL.Translate(xo, yo, 0);
-            GL.Scale((Window.DataWidth - xo) / Window.DataWidth, 1, 0);
-        }
-
-        void BottomTickMode() {
-
-        }
-
-        void LeftTickMode() {
-
+            GL.Scale(3, (Window.DataHeight - yo) / Window.DataHeight, 0);
         }
 
         float ConstrainThickness(float thickness) {
@@ -419,6 +356,36 @@ namespace GLGraph.NET {
             _displayLists.Remove(e.Line);
             LoadDisplayList(e.Line);
         }
+
+        void DrawTicks() {
+            TickMode();
+            _leftTickBar.Window = Window;
+            _bottomTickBar.Window = Window;
+            _leftTickBar.MajorTick = 5;
+            _leftTickBar.MinorTick = 1;
+            _leftTickBar.TickStart = 0;
+
+            _leftTickBar.RangeStart = Math.Floor(Window.Bottom);
+            _leftTickBar.RangeStop = Math.Ceiling(Window.Top);
+
+            Debug.WriteLine(_leftTickBar.RangeStart + " " + _leftTickBar.RangeStop);
+
+            
+            _bottomTickBar.Draw();
+            _leftTickBar.Draw();
+        }
+
+        void DrawMarkers() {
+            foreach (var m in _markers) m.Draw(Window);
+        }
+
+        void DrawData() {
+            DataMode();
+            foreach (var dl in _displayLists.Values) {
+                dl.Draw();
+            }
+        }
+
 
     }
 

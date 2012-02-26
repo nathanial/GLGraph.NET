@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using OpenTK.Graphics.OpenGL;
 
@@ -9,158 +10,76 @@ namespace GLGraph.NET {
         Horizontal
     }
 
-    public class TickBar {
-        public int MinorTick { get; set; }
-        public int MajorTick { get; set; }
+    public interface ITickBar : IDisposable {
+        double TickStart { get; set; }
+        double RangeStop { get; set; }
+        double MinorTick { get; set; }
+        double MajorTick { get; set; }
+        double RangeStart { get; set; }
+        GraphWindow Window { get; set; }
+        void Draw();
+        void DrawCrossLines();
+    }
 
-        GDIOpenGLTextRenderer _textRenderer;
-        readonly TickBarOrientation _orientation;
-        readonly GLColor _white = new GLColor(1.0f, 1.0f, 1.0f, 1.0f);
+    public class VerticalTickBar : ITickBar {
+        public double TickStart { get; set; }
+        public double RangeStop { get; set; }
+        
+        public double RangeStart { get; set; }
 
-        ILineGraph _graph;
+        public double MinorTick { get; set; }
+        public double MajorTick { get; set; }
+        public GraphWindow Window { get; set; }
 
-        public TickBar(ILineGraph graph, TickBarOrientation orientation) {
-            _graph = graph;
-            _orientation = orientation;
-        }
-
-        public void Draw(GraphWindow window) {
-            _textRenderer = _textRenderer ?? new GDIOpenGLTextRenderer();
-            Point origin;
-            GLSize size;
-            Func<int, int, Point[]> line;
-            Func<int, int> start;
-            int end;
-            Func<int, PieceOfText> labelFunc;
-            var major = AdjustedMajorTick(window);
-            var minor = AdjustedMinorTick(window);
-
-            if (_orientation == TickBarOrientation.Vertical) {
-                origin = new Point(0, 0);
-                size = new GLSize(50, window.WindowHeight);
-                start = t => VerticalStart(window, t);
-                end = (int)window.Top;
-                line = (l, i) => CreateVerticalLine(window, i, 50, l);
-                labelFunc = i => new PieceOfText(0, i, i.ToString());
-            } else {
-                origin = new Point(0, 0);
-                size = new GLSize(window.WindowWidth, 50);
-                start = t => HorizontalStart(window, t);
-                end = (int)window.Finish;
-                line = (l, i) => CreateHorizontalLine(window, i, 50, l);
-                labelFunc = i => new PieceOfText(i, 30, i.ToString());
+        public void Draw() {
+            GL.Color3(0.0, 0.0, 0.0);
+            GL.Begin(BeginMode.Lines);
+            for (var i = RangeStart; i < RangeStop; i++) {
+                if (Math.Abs(i % MajorTick - 0) < 0.0001) {
+                    DrawMajorTick(TickStart + i);
+                } else if(Math.Abs(i % MinorTick - 0) < 0.0001) {
+                    DrawMinorTick(TickStart + i);
+                }
             }
-
-            if (_graph.TextEnabled) {
-                var labels = Functions.SelectOver(start(major), end, major, labelFunc);
-                var rect = new GLRectangle(_white, true, origin, size);
-                rect.Draw();
-                _textRenderer.AddText(labels);
-                _textRenderer.Draw(WidthForOrientation(window), HeightForOrientation(window), rect);
-            }
-
-            if (Math.Abs(window.WindowWidth) >= 0.001 && Math.Abs(window.WindowHeight) >= 0.001) {
-                GL.Color3(0.0f, 0.0f, 0.0f);
-                GL.LineWidth(1.0f);
-                GL.Begin(BeginMode.Lines);
-                GL.Color3(System.Drawing.Color.Black);
-                OpenGL.DrawMany(start(major), end, major, i => line((int) (50 - 20), i));
-                OpenGL.DrawMany(start(minor), end, minor, i => i % major == 0 ? new Point[] { } : line((int) (50 - 10), i));
-                GL.End();
-                GL.LineWidth(1.0f);
-            }
+            GL.End();
         }
 
-        int AdjustMajorTick(GraphWindow window, int majorTick) {
-            var count = _orientation == TickBarOrientation.Vertical
-                            ? VerticalTickCount(window, majorTick)
-                            : HorizontalTickCount(window, majorTick);
-            if (count > 20) {
-                majorTick *= (count / 20);
-            }
-            return majorTick;
+        void DrawMajorTick(double i) {
+            GL.Vertex2(0, i);
+            GL.Vertex2(1, i);
         }
 
-        int AdjustMinorTick(GraphWindow window, int majorTick, int minorTick) {
-            var count = _orientation == TickBarOrientation.Vertical
-                            ? VerticalTickCount(window, majorTick)
-                            : HorizontalTickCount(window, majorTick);
-            if (count > 20) {
-                minorTick *= (count / 20);
-            }
-            return minorTick;
+        void DrawMinorTick(double i) {
+            GL.Vertex2(0.5,i);
+            GL.Vertex2(1,i);
         }
 
-        int WidthForOrientation(GraphWindow window) {
-            return (int)(_orientation == TickBarOrientation.Horizontal ? window.WindowWidth : 50);
-        }
-
-        int HeightForOrientation(GraphWindow window) {
-            return (int)(_orientation == TickBarOrientation.Vertical ? window.WindowHeight : 50);
-        }
-
-        public int AdjustedMajorTick(GraphWindow window) {
-            return AdjustMajorTick(window, MajorTick);
-        }
-
-        public int AdjustedMinorTick(GraphWindow window) {
-            return AdjustMinorTick(window, MajorTick, MinorTick);
-        }
-
-        public static int HorizontalStart(GraphWindow window, int tick) {
-            return Functions.FindFirst((int)window.Start, (int)window.Finish, i => i % tick == 0);
-        }
-
-        public static int VerticalStart(GraphWindow window, int tick) {
-            return Functions.FindFirst((int)window.Bottom, (int)window.Top, i => i % tick == 0);
-        }
-
-        static int VerticalTickCount(GraphWindow window, int majorTick) {
-            return ((int)window.Top - (int)window.Bottom) / majorTick;
-        }
-
-        static int HorizontalTickCount(GraphWindow window, int majorTick) {
-            return ((int)window.Finish - (int)window.Start) / majorTick;
-        }
-
-        Point[] CreateHorizontalLine(GraphWindow window, int i, int y1, int y2) {
-            var r = new Point(i, 0).ToScreen(window);
-            return new[] {
-                new Point(r.X, y1),
-                new Point(r.X, y2)  
-            };
-        }
-
-        Point[] CreateVerticalLine(GraphWindow window, int i, int x1, int x2) {
-            var r = new Point(0, i).ToScreen(window);
-            return new[] {
-                new Point(x1, r.Y),
-                new Point(x2, r.Y)
-            };
+        public void DrawCrossLines() {
         }
 
         public void Dispose() {
-            _textRenderer.Dispose();
         }
     }
 
-    public static class PointExtensions {
-        public static Point ToView(this Point p, GraphWindow w) {
-            var xscale = (w.Finish - w.Start) / w.WindowWidth;
-            var yscale = (w.Top - w.Bottom) / w.WindowHeight;
-            const double xoffset = 0; //window x start
-            const double yoffset = 0; //window y start
-            return new Point((p.X - xoffset) * xscale,
-                             (p.Y - yoffset) * yscale);
+    public class HorizontalTickBar : ITickBar {
+        public double RangeStart { get; set; }
+        public double TickStart { get; set; }
+        public double RangeStop { get; set; }
+        public double MinorTick { get; set; }
+        public double MajorTick { get; set; }
+        public GraphWindow Window { get; set; }
+
+        public void Draw() {
         }
 
-        public static Point ToScreen(this Point p, GraphWindow w) {
-            var xscale = w.WindowWidth / (w.Finish - w.Start);
-            var yscale = w.WindowHeight / (w.Top - w.Bottom);
-            var xoffset = w.Start;
-            var yoffset = w.Bottom;
-            return new Point((p.X - xoffset) * xscale,
-                             (p.Y - yoffset) * yscale);
+        public void DrawCrossLines() {
         }
+
+        public void Dispose() {
+        }
+
     }
+
+
+
 }
