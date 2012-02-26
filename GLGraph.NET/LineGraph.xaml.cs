@@ -50,11 +50,11 @@ namespace GLGraph.NET {
     }
 
     public class GraphWindow {
-        public Point DataOrigin;
-        public double DataWidth;
-        public double DataHeight;
-        public int WindowHeight;
-        public int WindowWidth;
+        public Point DataOrigin { get; set; }
+        public double DataWidth { get; set; }
+        public double DataHeight { get; set; }
+        public int WindowHeight { get; set; }
+        public int WindowWidth { get; set; }
 
         public double Top {
             get { return DataOrigin.Y + DataHeight; }
@@ -269,14 +269,8 @@ namespace GLGraph.NET {
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Hint(HintTarget.LineSmoothHint, HintMode.DontCare);
 
-            _leftTickBar = new VerticalTickBar{
-                MinorTick = 1,
-                MajorTick = 5
-            };
-            _bottomTickBar = new HorizontalTickBar {
-                MinorTick = 1,
-                MajorTick = 5
-            };
+            _leftTickBar = new VerticalTickBar();
+            _bottomTickBar = new HorizontalTickBar();
         }
 
         void SetWindowSize(int windowWidth, int windowHeight) {
@@ -322,24 +316,10 @@ namespace GLGraph.NET {
 
         void DataMode() {
             GL.LoadIdentity();
-            GL.Ortho(Window.Start, Window.Finish, Window.Bottom, Window.Top, -1, 1);
-            //var xo = new Point(50, 0).ToView(Window).X;
-            //var yo = new Point(0,50).ToView(Window).Y;
-            var xo = 0;
-            var yo = 0;
-            GL.Translate(xo,yo,0);
-            GL.Scale((Window.DataWidth - xo) / Window.DataWidth, (Window.DataHeight - yo) / Window.DataHeight, 0);
-        }
-
-        void TickMode() {
-            GL.LoadIdentity();
-            GL.Ortho(0,100,Window.Bottom,Window.Top, -1,1);
-            //var xo = new Point(0, 0).ToView(Window).X;
-            //var yo = new Point(0, 50).ToView(Window).Y;
-            var xo = 1.5;
-            var yo = 0;
-            GL.Translate(xo, yo, 0);
-            GL.Scale(3, (Window.DataHeight - yo) / Window.DataHeight, 0);
+            GL.Ortho(0, 1000, 0, 1000, -1, 1);
+            GL.Translate(100,100,0);
+            GL.Scale(1000 / Window.DataWidth, 1000 / Window.DataHeight, 0);
+            GL.Translate(-Window.DataOrigin.X, -Window.DataOrigin.Y,0);
         }
 
         float ConstrainThickness(float thickness) {
@@ -358,21 +338,18 @@ namespace GLGraph.NET {
         }
 
         void DrawTicks() {
-            TickMode();
-            _leftTickBar.Window = Window;
-            _bottomTickBar.Window = Window;
-            _leftTickBar.MajorTick = 5;
-            _leftTickBar.MinorTick = 1;
-            _leftTickBar.TickStart = 0;
+            //TickMode();
+            //_leftTickBar.Window = Window;
+            //_bottomTickBar.Window = Window;
+            //_leftTickBar.MajorTick = 5;
+            //_leftTickBar.MinorTick = 1;
+            //_leftTickBar.TickStart = 0;
 
-            _leftTickBar.RangeStart = Math.Floor(Window.Bottom);
-            _leftTickBar.RangeStop = Math.Ceiling(Window.Top);
+            //_leftTickBar.RangeStart = Math.Floor(Window.Bottom);
+            //_leftTickBar.RangeStop = Math.Ceiling(Window.Top);
 
-            Debug.WriteLine(_leftTickBar.RangeStart + " " + _leftTickBar.RangeStop);
-
-            
-            _bottomTickBar.Draw();
-            _leftTickBar.Draw();
+            //_bottomTickBar.Draw();
+            //_leftTickBar.Draw();
         }
 
         void DrawMarkers() {
@@ -385,7 +362,6 @@ namespace GLGraph.NET {
                 dl.Draw();
             }
         }
-
 
     }
 

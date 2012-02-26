@@ -5,11 +5,6 @@ using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
 
-    public enum TickBarOrientation {
-        Vertical,
-        Horizontal
-    }
-
     public interface ITickBar : IDisposable {
         double TickStart { get; set; }
         double RangeStop { get; set; }
@@ -20,6 +15,7 @@ namespace GLGraph.NET {
         void Draw();
         void DrawCrossLines();
     }
+
 
     public class VerticalTickBar : ITickBar {
         public double TickStart { get; set; }
@@ -35,9 +31,9 @@ namespace GLGraph.NET {
             GL.Color3(0.0, 0.0, 0.0);
             GL.Begin(BeginMode.Lines);
             for (var i = RangeStart; i < RangeStop; i++) {
-                if (Math.Abs(i % MajorTick - 0) < 0.0001) {
+                if (Math.Abs(i % MajorTick) < 0.0001) {
                     DrawMajorTick(TickStart + i);
-                } else if(Math.Abs(i % MinorTick - 0) < 0.0001) {
+                } else if(Math.Abs(i % MinorTick) < 0.0001) {
                     DrawMinorTick(TickStart + i);
                 }
             }
