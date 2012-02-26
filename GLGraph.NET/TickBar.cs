@@ -51,6 +51,16 @@ namespace GLGraph.NET {
         }
 
         public void DrawCrossLines() {
+            GL.Color4(0.0, 0.0, 0.0,0.25);
+            GL.LineWidth(0.5f);
+            GL.Begin(BeginMode.Lines);
+            for (var i = RangeStart; i < RangeStop; i++) {
+                if (Math.Abs(i % MajorTick) < 0.0001) {
+                    DrawMajorTick(TickStart + i);
+                }
+            }
+            GL.End();
+            GL.LineWidth(1.0f);
         }
 
         public void Dispose() {

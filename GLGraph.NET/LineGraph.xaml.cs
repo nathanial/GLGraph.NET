@@ -153,12 +153,14 @@ namespace GLGraph.NET {
 
             DrawData();
             DrawMarkers();
-            DrawTicks();
+
+            ConfigureLeftTickBar();
+            DrawLeftTicks();
+            DrawHorizontalLines();
+
 
             _glcontrol.SwapBuffers();
         }
-
-
 
         public void StartPan(int xpos, int ypos) {
             _panningStarted = true;
@@ -210,7 +212,6 @@ namespace GLGraph.NET {
 
             if (Window.WindowWidth == 0) throw new Exception(ZeroError);
             if (Window.WindowHeight == 0) throw new Exception(ZeroError);
-
 
             _glcontrol.MakeCurrent();
 
@@ -297,7 +298,7 @@ namespace GLGraph.NET {
 
         void LoadDisplayList(Line line) {
             _displayLists[line] = new DisplayList(() => {
-                GL.LineWidth(ConstrainThickness(line.Thickness));
+                GL.LineWidth(1.0f);
                 GL.Begin(BeginMode.Lines);
                 var size = line.Points.Count;
                 GL.Color4(line.Color.R / 255.0, line.Color.G / 255.0,
@@ -309,7 +310,7 @@ namespace GLGraph.NET {
                     GL.Vertex2(p2.X, p2.Y);
                 }
                 GL.End();
-                GL.LineWidth(_lineMin);
+                GL.LineWidth(1.0f);
             });
         }
 
@@ -322,34 +323,36 @@ namespace GLGraph.NET {
             GL.Translate(-Window.DataOrigin.X, -Window.DataOrigin.Y,0);
         }
 
-        float ConstrainThickness(float thickness) {
-            var t = Math.Min(Math.Max(thickness, _lineMin), _lineMax);
-            var step = ((int)(t * 10)) / ((int)(_lineGranularity * 10));
-            var r = step * _lineGranularity;
-            return r;
+
+
+        void ConfigureLeftTickBar() {
+            _leftTickBar.Window = Window;
+            _leftTickBar.MajorTick = 5;
+            _leftTickBar.MinorTick = 1;
+            _leftTickBar.TickStart = 0;
+
+            _leftTickBar.RangeStart = Math.Floor(Window.Bottom);
+            _leftTickBar.RangeStop = Math.Ceiling(Window.Top);
         }
 
-
-        void LineChanged(object sender, LineChangedEventArgs e) {
-            var dl = _displayLists[e.Line];
-            dl.Dispose();
-            _displayLists.Remove(e.Line);
-            LoadDisplayList(e.Line);
+        void DrawLeftTicks() {
+            GL.LoadIdentity();
+            GL.Ortho(0, Window.WindowWidth, 0, 1000, -1, 1);
+            GL.Translate(10, 100, 0);
+            GL.Scale(30, 1000 / Window.DataHeight, 0);
+            GL.Translate(0, -Window.DataOrigin.Y, 0);
+         
+            _leftTickBar.Draw();
         }
 
-        void DrawTicks() {
-            //TickMode();
-            //_leftTickBar.Window = Window;
-            //_bottomTickBar.Window = Window;
-            //_leftTickBar.MajorTick = 5;
-            //_leftTickBar.MinorTick = 1;
-            //_leftTickBar.TickStart = 0;
+        void DrawHorizontalLines() {
+            GL.LoadIdentity();
+            GL.Ortho(0,Window.WindowWidth,0,1000,-1,1);
+            GL.Translate(40,100,0);
+            GL.Scale(Window.WindowWidth,1000 / Window.DataHeight,0);
+            GL.Translate(0,-Window.DataOrigin.Y, 0);
 
-            //_leftTickBar.RangeStart = Math.Floor(Window.Bottom);
-            //_leftTickBar.RangeStop = Math.Ceiling(Window.Top);
-
-            //_bottomTickBar.Draw();
-            //_leftTickBar.Draw();
+            _leftTickBar.DrawCrossLines();
         }
 
         void DrawMarkers() {
@@ -362,6 +365,15 @@ namespace GLGraph.NET {
                 dl.Draw();
             }
         }
+
+        void LineChanged(object sender, LineChangedEventArgs e) {
+            var dl = _displayLists[e.Line];
+            dl.Dispose();
+            _displayLists.Remove(e.Line);
+            LoadDisplayList(e.Line);
+        }
+
+
 
     }
 
