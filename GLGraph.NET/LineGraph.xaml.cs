@@ -155,9 +155,8 @@ namespace GLGraph.NET {
             DrawDataAndMarkers();
 
             ConfigureLeftTickBar();
-            DrawLeftTicks();
-
-            DrawHorizontalLines();
+            _leftTickBar.Draw();
+            _leftTickBar.DrawCrossLines();
 
             _glcontrol.SwapBuffers();
         }
@@ -320,15 +319,6 @@ namespace GLGraph.NET {
 
             _leftTickBar.RangeStart = Math.Floor(Window.Bottom);
             _leftTickBar.RangeStop = Math.Ceiling(Window.Top);
-        }
-
-        void DrawLeftTicks() {
-
-            _leftTickBar.Draw();
-        }
-
-        void DrawHorizontalLines() {
-            _leftTickBar.DrawCrossLines();
         }
 
         void DrawMarkers() {

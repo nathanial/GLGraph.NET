@@ -74,10 +74,9 @@ namespace GLGraph.NET {
         }
 
         public void DrawCrossLines() {
-            GL.LoadIdentity();
-            GL.Ortho(0, Window.WindowWidth, 0, 1000, -1, 1);
-            GL.Translate(40, 100, 0);
-            GL.Scale(Window.WindowWidth, 1000 / Window.DataHeight, 0);
+            GL.PushMatrix();
+            GL.Translate(0.0,0.1,0.0);
+            GL.Scale(1.0/Window.WindowWidth, 1.0/Window.DataHeight,1);
             GL.Translate(0, -Window.DataOrigin.Y, 0);
 
             GL.Color4(0.0, 0.0, 0.0, 0.25);
@@ -85,12 +84,14 @@ namespace GLGraph.NET {
             GL.Begin(BeginMode.Lines);
             for (var i = RangeStart; i < RangeStop; i++) {
                 if (Math.Abs(i % MajorTick) < 0.0001) {
-                    GL.Vertex2(0, TickStart + i);
-                    GL.Vertex2(1, TickStart + i);
+                    GL.Vertex2(40, TickStart + i);
+                    GL.Vertex2(Window.WindowWidth, TickStart + i);
                 }
             }
             GL.End();
             GL.LineWidth(1.0f);
+
+            GL.PopMatrix();
         }
 
         public void Dispose() {
