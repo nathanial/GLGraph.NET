@@ -48,5 +48,17 @@ namespace GLGraph.NET {
         public static void DrawMany(int start, int finish, int step, Func<int, Point[]> fun) {
             DrawVertices(Functions.SelectOverMany(start, finish, step, fun));
         }
+
+        public static void PushMatrix(Action action) {
+            GL.PushMatrix();
+            action();
+            GL.PopMatrix();
+        }
+
+        public static void Begin(BeginMode mode, Action action) {
+            GL.Begin(mode);
+            action();
+            GL.End();
+        }
     }
 }

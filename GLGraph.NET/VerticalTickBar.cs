@@ -37,70 +37,65 @@ namespace GLGraph.NET {
             }
             _texts.Clear();
 
-            GL.PushMatrix();
-            
-            MoveFiftyPixelsRight();
+            OpenGL.PushMatrix(() => {
+                MoveFiftyPixelsUp();
 
-            GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.DataHeight, 1);
-            GL.Translate(0, -Window.DataOrigin.Y, 0);
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.DataHeight, 1);
+                GL.Translate(0, -Window.DataOrigin.Y, 0);
 
-            GL.Color3(0.0, 0.0, 0.0);
-            GL.Begin(BeginMode.Lines);
-            for (var i = RangeStart; i < RangeStop; i++) {
-                if (Math.Abs(i % MajorTick) < 0.0001) {
-                    DrawMajorTick(TickStart + i);
-                } else if (Math.Abs(i % MinorTick) < 0.0001) {
-                    DrawMinorTick(TickStart + i);
+                GL.Color3(0.0, 0.0, 0.0);
+                OpenGL.Begin(BeginMode.Lines, () => {
+                    for (var i = RangeStart; i < RangeStop; i++) {
+                        if (Math.Abs(i % MajorTick) < 0.0001) {
+                            DrawMajorTick(TickStart + i);
+                        } else if (Math.Abs(i % MinorTick) < 0.0001) {
+                            DrawMinorTick(TickStart + i);
+                        }
+                    }
+                });
+            });
+            OpenGL.PushMatrix(() => {
+                MoveFiftyPixelsUp();
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
+
+                for (var i = RangeStart; i < RangeStop; i++) {
+                    if (Math.Abs(i % MajorTick) < 0.0001) {
+                        var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
+                        t.Draw(new Point(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight - 17));
+                        _texts.Add(t);
+                    }
                 }
-            }
-            GL.End();
-
-            GL.PopMatrix();
-
-            GL.PushMatrix();
-            MoveFiftyPixelsRight();
-            GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
-
-            for (var i = RangeStart; i < RangeStop; i++) {
-                if (Math.Abs(i % MajorTick) < 0.0001) {
-                    var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                    t.Draw(new Point(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight - 17));
-                    _texts.Add(t);
-                }
-            }
-            GL.PopMatrix();
+            });
         }
 
         public void DrawCrossLines() {
-            GL.PushMatrix();
-            
-            MoveFiftyPixelsRight();
+            OpenGL.PushMatrix(() => {
+                MoveFiftyPixelsUp();
 
-            GL.Scale(1.0/Window.WindowWidth, 1.0/Window.DataHeight,1);
-            GL.Translate(50, -Window.DataOrigin.Y, 0);
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.DataHeight, 1);
+                GL.Translate(50, -Window.DataOrigin.Y, 0);
 
-            GL.Color4(0.0, 0.0, 0.0, 0.25);
-            GL.LineWidth(0.5f);
-            GL.Begin(BeginMode.Lines);
-            for (var i = RangeStart; i < RangeStop; i++) {
-                if (Math.Abs(i % MajorTick) < 0.0001) {
-                    GL.Vertex2(0, TickStart + i);
-                    GL.Vertex2(Window.WindowWidth - 50, TickStart + i);
-                }
-            }
-            GL.End();
-            GL.LineWidth(1.0f);
-
-            GL.PopMatrix();
-        }
-
-        void MoveFiftyPixelsRight() {
-            GL.Scale(1.0/Window.WindowWidth, 1.0/Window.WindowHeight, 1.0);
-            GL.Translate(0, 50, 0);
-            GL.Scale(Window.WindowWidth, Window.WindowHeight, 1.0);
+                GL.Color4(0.0, 0.0, 0.0, 0.25);
+                GL.LineWidth(0.5f);
+                OpenGL.Begin(BeginMode.Lines, () => {
+                    for (var i = RangeStart; i < RangeStop; i++) {
+                        if (Math.Abs(i % MajorTick) < 0.0001) {
+                            GL.Vertex2(0, TickStart + i);
+                            GL.Vertex2(Window.WindowWidth - 50, TickStart + i);
+                        }
+                    }
+                });
+                GL.LineWidth(1.0f);
+            });
         }
 
         public void Dispose() {
+        }
+
+        void MoveFiftyPixelsUp() {
+            GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
+            GL.Translate(0, 50, 0);
+            GL.Scale(Window.WindowWidth, Window.WindowHeight, 1.0);
         }
 
         void DrawMajorTick(double i) {

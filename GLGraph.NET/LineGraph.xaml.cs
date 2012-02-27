@@ -162,6 +162,7 @@ namespace GLGraph.NET {
             _bottomTickBar.Draw();
             _bottomTickBar.DrawCrossLines();
 
+
             _glcontrol.SwapBuffers();
         }
 
