@@ -221,12 +221,6 @@ namespace GLGraph.NET {
             }
         }
 
-        void DrawDeadSpace() {
-            GL.Color3(System.Drawing.Color.White);
-            OpenGL.DrawQuad(new Point(0,50),new Point(50,50),
-                            new Point(50,0), new Point(0,0));
-        }
-
         void AddLine(Line line) {
             LoadDisplayList(line);
             line.Changed += LineChanged;
@@ -252,23 +246,13 @@ namespace GLGraph.NET {
         }
 
 
-        float _lineMin;
-        float _lineMax;
-        float _lineGranularity;
-
         void InitializeOpenGL() {
             _glcontrol.MakeCurrent();
-            var range = new float[2];
-            GL.GetFloat(GetPName.SmoothLineWidthRange, range);
-            _lineMin = range[0];
-            _lineMax = range[1];
-            GL.GetFloat(GetPName.SmoothLineWidthGranularity, out _lineGranularity);
-
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.LineSmooth);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Hint(HintTarget.LineSmoothHint, HintMode.DontCare);
+            GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
 
             _leftTickBar = new VerticalTickBar();
             _bottomTickBar = new HorizontalTickBar();
@@ -323,8 +307,6 @@ namespace GLGraph.NET {
             GL.Translate(-Window.DataOrigin.X, -Window.DataOrigin.Y,0);
         }
 
-
-
         void ConfigureLeftTickBar() {
             _leftTickBar.Window = Window;
             _leftTickBar.MajorTick = 5;
@@ -336,22 +318,11 @@ namespace GLGraph.NET {
         }
 
         void DrawLeftTicks() {
-            GL.LoadIdentity();
-            GL.Ortho(0, Window.WindowWidth, 0, 1000, -1, 1);
-            GL.Translate(10, 100, 0);
-            GL.Scale(30, 1000 / Window.DataHeight, 0);
-            GL.Translate(0, -Window.DataOrigin.Y, 0);
-         
+
             _leftTickBar.Draw();
         }
 
         void DrawHorizontalLines() {
-            GL.LoadIdentity();
-            GL.Ortho(0,Window.WindowWidth,0,1000,-1,1);
-            GL.Translate(40,100,0);
-            GL.Scale(Window.WindowWidth,1000 / Window.DataHeight,0);
-            GL.Translate(0,-Window.DataOrigin.Y, 0);
-
             _leftTickBar.DrawCrossLines();
         }
 
