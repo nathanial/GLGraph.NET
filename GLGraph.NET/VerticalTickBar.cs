@@ -38,9 +38,11 @@ namespace GLGraph.NET {
             _texts.Clear();
 
             GL.PushMatrix();
-            GL.Translate(0.0, 0.1, 0.0);
+            
+            MoveFiftyPixelsRight();
+
             GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.DataHeight, 1);
-            GL.Translate(10, -Window.DataOrigin.Y, 0);
+            GL.Translate(0, -Window.DataOrigin.Y, 0);
 
             GL.Color3(0.0, 0.0, 0.0);
             GL.Begin(BeginMode.Lines);
@@ -56,7 +58,7 @@ namespace GLGraph.NET {
             GL.PopMatrix();
 
             GL.PushMatrix();
-            GL.Translate(0.0, 0.1, 0.0);
+            MoveFiftyPixelsRight();
             GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
 
             for (var i = RangeStart; i < RangeStop; i++) {
@@ -71,17 +73,19 @@ namespace GLGraph.NET {
 
         public void DrawCrossLines() {
             GL.PushMatrix();
-            GL.Translate(0.0,0.1,0.0);
+            
+            MoveFiftyPixelsRight();
+
             GL.Scale(1.0/Window.WindowWidth, 1.0/Window.DataHeight,1);
-            GL.Translate(0, -Window.DataOrigin.Y, 0);
+            GL.Translate(50, -Window.DataOrigin.Y, 0);
 
             GL.Color4(0.0, 0.0, 0.0, 0.25);
             GL.LineWidth(0.5f);
             GL.Begin(BeginMode.Lines);
             for (var i = RangeStart; i < RangeStop; i++) {
                 if (Math.Abs(i % MajorTick) < 0.0001) {
-                    GL.Vertex2(40, TickStart + i);
-                    GL.Vertex2(Window.WindowWidth, TickStart + i);
+                    GL.Vertex2(0, TickStart + i);
+                    GL.Vertex2(Window.WindowWidth - 50, TickStart + i);
                 }
             }
             GL.End();
@@ -90,17 +94,23 @@ namespace GLGraph.NET {
             GL.PopMatrix();
         }
 
+        void MoveFiftyPixelsRight() {
+            GL.Scale(1.0/Window.WindowWidth, 1.0/Window.WindowHeight, 1.0);
+            GL.Translate(0, 50, 0);
+            GL.Scale(Window.WindowWidth, Window.WindowHeight, 1.0);
+        }
+
         public void Dispose() {
         }
 
         void DrawMajorTick(double i) {
-            GL.Vertex2(10, i);
             GL.Vertex2(30, i);
+            GL.Vertex2(50, i);
         }
 
         void DrawMinorTick(double i) {
-            GL.Vertex2(20, i);
-            GL.Vertex2(30, i);
+            GL.Vertex2(40, i);
+            GL.Vertex2(50, i);
         }
     }
 }

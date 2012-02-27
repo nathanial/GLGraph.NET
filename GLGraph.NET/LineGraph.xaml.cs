@@ -168,7 +168,10 @@ namespace GLGraph.NET {
         void DrawDataAndMarkers() {
             GL.PushMatrix();
 
-            GL.Translate(0.1, 0.1, 0);
+            GL.Scale(1.0/Window.WindowWidth, 1.0/Window.WindowHeight, 1.0);
+            GL.Translate(50, 50, 0);
+            GL.Scale(Window.WindowWidth, Window.WindowHeight, 1.0);
+
             GL.Scale(1.0/Window.DataWidth, 1.0/Window.DataHeight, 0);
             GL.Translate(-Window.DataOrigin.X, -Window.DataOrigin.Y, 0);
 
