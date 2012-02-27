@@ -25,7 +25,7 @@ namespace GLGraph.NET {
     public class VerticalTickBar : ITickBar {
         public double TickStart { get; set; }
         public double RangeStop { get; set; }
-        
+
         public double RangeStart { get; set; }
 
         public double MinorTick { get; set; }
@@ -42,20 +42,16 @@ namespace GLGraph.NET {
             _texts.Clear();
 
             GL.PushMatrix();
-            GL.Translate(0.0, 0.1,0.0);
-            GL.Scale(1.0/25.0, 1.0 / Window.DataHeight, 1);
-            GL.Translate(0, -Window.DataOrigin.Y, 0);
-            
+            GL.Translate(0.0, 0.1, 0.0);
+            GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.DataHeight, 1);
+            GL.Translate(10, -Window.DataOrigin.Y, 0);
+
             GL.Color3(0.0, 0.0, 0.0);
             GL.Begin(BeginMode.Lines);
             for (var i = RangeStart; i < RangeStop; i++) {
                 if (Math.Abs(i % MajorTick) < 0.0001) {
                     DrawMajorTick(TickStart + i);
-                    var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                    //t.Draw(Window, new Point(0, TickStart + i));
-                    _texts.Add(t);
-
-                } else if(Math.Abs(i % MinorTick) < 0.0001) {
+                } else if (Math.Abs(i % MinorTick) < 0.0001) {
                     DrawMinorTick(TickStart + i);
                 }
             }
@@ -63,6 +59,18 @@ namespace GLGraph.NET {
 
             GL.PopMatrix();
 
+            GL.PushMatrix();
+            GL.Translate(0.0, 0.1, 0.0);
+            GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
+
+            for (var i = RangeStart; i < RangeStop; i++) {
+                if (Math.Abs(i % MajorTick) < 0.0001) {
+                    var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
+                    t.Draw(new Point(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight - 17));
+                    _texts.Add(t);
+                }
+            }
+            GL.PopMatrix();
         }
 
         public void DrawCrossLines() {
@@ -72,12 +80,13 @@ namespace GLGraph.NET {
             GL.Scale(Window.WindowWidth, 1000 / Window.DataHeight, 0);
             GL.Translate(0, -Window.DataOrigin.Y, 0);
 
-            GL.Color4(0.0, 0.0, 0.0,0.25);
+            GL.Color4(0.0, 0.0, 0.0, 0.25);
             GL.LineWidth(0.5f);
             GL.Begin(BeginMode.Lines);
             for (var i = RangeStart; i < RangeStop; i++) {
                 if (Math.Abs(i % MajorTick) < 0.0001) {
-                    DrawMajorTick(TickStart + i);
+                    GL.Vertex2(0, TickStart + i);
+                    GL.Vertex2(1, TickStart + i);
                 }
             }
             GL.End();
@@ -88,13 +97,13 @@ namespace GLGraph.NET {
         }
 
         void DrawMajorTick(double i) {
-            GL.Vertex2(0, i);
-            GL.Vertex2(1, i);
+            GL.Vertex2(10, i);
+            GL.Vertex2(30, i);
         }
 
         void DrawMinorTick(double i) {
-            GL.Vertex2(0.5, i);
-            GL.Vertex2(1, i);
+            GL.Vertex2(20, i);
+            GL.Vertex2(30, i);
         }
     }
 

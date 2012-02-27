@@ -17,11 +17,9 @@ namespace GLGraph.NET {
             _texture = GL.GenTexture();
         }
 
-        public void Draw(GraphWindow window, Point origin) {
+        public void Draw(Point origin) {
             var width = 200;
             var height = 50;
-            var adjustedWidth = new Point(width, 0).ToView(window).X;
-            var adjustedHeight = new Point(0, height).ToView(window).Y;
             var bmp = new Bitmap(width, height);
             using(var g = Graphics.FromImage(bmp)) {
                 g.Clear(Color.Transparent);
@@ -41,14 +39,20 @@ namespace GLGraph.NET {
 
             bmp.UnlockBits(data);
 
-            GL.Begin(BeginMode.Quads);
-            GL.TexCoord2(0f, 0f); GL.Vertex2(origin.X, origin.Y + adjustedHeight); //topleft
-            GL.TexCoord2(1f, 0f); GL.Vertex2(origin.X + adjustedWidth, origin.Y + adjustedHeight); //topright
-            GL.TexCoord2(1f, 1f); GL.Vertex2(origin.X + adjustedWidth, origin.Y);
-            GL.TexCoord2(0f, 1f); GL.Vertex2(origin.X, origin.Y);
-            GL.End();
+            GL.PushMatrix();
 
+            GL.Translate(origin.X, origin.Y, 0);
+
+            GL.Begin(BeginMode.Quads);
+            GL.TexCoord2(0f, 0f); GL.Vertex2(0,height); //topleft
+            GL.TexCoord2(1f, 0f); GL.Vertex2(width,height);
+            GL.TexCoord2(1f, 1f); GL.Vertex2(width,0);
+            GL.TexCoord2(0f, 1f); GL.Vertex2(0,0);
+            GL.End();
+            
             GL.BindTexture(TextureTarget.Texture2D, 0);
+            
+            GL.PopMatrix();
         }
 
         public void Dispose() {
