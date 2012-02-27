@@ -338,6 +338,11 @@ namespace GLGraph.NET {
             _leftTickBar.MinorTick = 1;
             _leftTickBar.TickStart = 0;
 
+            while(Window.DataHeight / _leftTickBar.MajorTick > 20) {
+                _leftTickBar.MinorTick = _leftTickBar.MajorTick;
+                _leftTickBar.MajorTick *= 2;
+            }
+
             _leftTickBar.RangeStart = Math.Floor(Window.Bottom);
             _leftTickBar.RangeStop = Math.Ceiling(Window.Top);
         }
@@ -347,6 +352,12 @@ namespace GLGraph.NET {
             _bottomTickBar.MajorTick = 5;
             _bottomTickBar.MinorTick = 1;
             _bottomTickBar.TickStart = 0;
+
+            while (Window.DataWidth / _bottomTickBar.MajorTick > 20) {
+                _bottomTickBar.MinorTick = _bottomTickBar.MajorTick;
+                _bottomTickBar.MajorTick *= 2;
+            }
+
 
             _bottomTickBar.RangeStart = Math.Floor(Window.Start);
             _bottomTickBar.RangeStop = Math.Ceiling(Window.Finish);
