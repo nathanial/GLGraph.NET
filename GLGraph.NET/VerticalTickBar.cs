@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
-using System.Windows;
-using System.Windows.Documents;
 using OpenTK.Graphics.OpenGL;
 using Point = System.Windows.Point;
 
@@ -20,7 +17,6 @@ namespace GLGraph.NET {
         void Draw();
         void DrawCrossLines();
     }
-
 
     public class VerticalTickBar : ITickBar {
         public double TickStart { get; set; }
@@ -107,26 +103,4 @@ namespace GLGraph.NET {
             GL.Vertex2(30, i);
         }
     }
-
-    public class HorizontalTickBar : ITickBar {
-        public double RangeStart { get; set; }
-        public double TickStart { get; set; }
-        public double RangeStop { get; set; }
-        public double MinorTick { get; set; }
-        public double MajorTick { get; set; }
-        public GraphWindow Window { get; set; }
-
-        public void Draw() {
-        }
-
-        public void DrawCrossLines() {
-        }
-
-        public void Dispose() {
-        }
-
-    }
-
-
-
 }

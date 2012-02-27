@@ -158,6 +158,10 @@ namespace GLGraph.NET {
             _leftTickBar.Draw();
             _leftTickBar.DrawCrossLines();
 
+            ConfigureBottomTickBar();
+            _bottomTickBar.Draw();
+            _bottomTickBar.DrawCrossLines();
+
             _glcontrol.SwapBuffers();
         }
 
@@ -321,6 +325,16 @@ namespace GLGraph.NET {
             _leftTickBar.RangeStop = Math.Ceiling(Window.Top);
         }
 
+        void ConfigureBottomTickBar() {
+            _bottomTickBar.Window = Window;
+            _bottomTickBar.MajorTick = 5;
+            _bottomTickBar.MinorTick = 1;
+            _bottomTickBar.TickStart = 0;
+
+            _bottomTickBar.RangeStart = Math.Floor(Window.Start);
+            _bottomTickBar.RangeStop = Math.Ceiling(Window.Finish);
+        }
+
         void DrawMarkers() {
             foreach (var m in _markers) m.Draw(Window);
         }
@@ -334,7 +348,6 @@ namespace GLGraph.NET {
         void SetupProjection() {
             GL.LoadIdentity();
             GL.Ortho(0, 1, 0, 1, -1, 1);
-
         }
 
         void LineChanged(object sender, LineChangedEventArgs e) {

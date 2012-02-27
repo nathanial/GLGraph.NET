@@ -154,13 +154,14 @@
     <Compile Include="GLColor.cs" />
     <Compile Include="GLRectangle.cs" />
     <Compile Include="GLSize.cs" />
+    <Compile Include="HorizontalTickBar.cs" />
     <Compile Include="OpenGL.cs" />
     <Compile Include="PersistentTexture.cs" />
     <Compile Include="Pools.cs" />
     <Compile Include="LineGraph.xaml.cs">
       <DependentUpon>LineGraph.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TickBar.cs" />
+    <Compile Include="VerticalTickBar.cs" />
     <Page Include="LineGraph.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
