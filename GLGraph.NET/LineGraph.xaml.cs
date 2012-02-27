@@ -148,18 +148,31 @@ namespace GLGraph.NET {
 
             GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
+
+            SetupProjection();
+
+            DrawDataAndMarkers();
+
+            ConfigureLeftTickBar();
+            DrawLeftTicks();
+
+            DrawHorizontalLines();
+
+            _glcontrol.SwapBuffers();
+        }
+
+        void DrawDataAndMarkers() {
+            GL.PushMatrix();
+
+            GL.Translate(0.1, 0.1, 0);
+            GL.Scale(1.0/Window.DataWidth, 1.0/Window.DataHeight, 0);
+            GL.Translate(-Window.DataOrigin.X, -Window.DataOrigin.Y, 0);
 
             DrawData();
             DrawMarkers();
 
-            ConfigureLeftTickBar();
-            DrawLeftTicks();
-            DrawHorizontalLines();
-
-
-            _glcontrol.SwapBuffers();
+            GL.PopMatrix();
         }
 
         public void StartPan(int xpos, int ypos) {
@@ -299,14 +312,6 @@ namespace GLGraph.NET {
         }
 
 
-        void DataMode() {
-            GL.LoadIdentity();
-            GL.Ortho(0, 1000, 0, 1000, -1, 1);
-            GL.Translate(100,100,0);
-            GL.Scale(1000 / Window.DataWidth, 1000 / Window.DataHeight, 0);
-            GL.Translate(-Window.DataOrigin.X, -Window.DataOrigin.Y,0);
-        }
-
         void ConfigureLeftTickBar() {
             _leftTickBar.Window = Window;
             _leftTickBar.MajorTick = 5;
@@ -331,10 +336,15 @@ namespace GLGraph.NET {
         }
 
         void DrawData() {
-            DataMode();
             foreach (var dl in _displayLists.Values) {
                 dl.Draw();
             }
+        }
+
+        void SetupProjection() {
+            GL.LoadIdentity();
+            GL.Ortho(0, 1, 0, 1, -1, 1);
+
         }
 
         void LineChanged(object sender, LineChangedEventArgs e) {
