@@ -18,20 +18,30 @@ namespace GLGraph.NET {
         readonly IList<PieceOfText> _texts = new List<PieceOfText>();
         readonly Font _font = new Font("Arial", 10);
 
-        public void Draw() {
+        public void DrawTicks() {
             foreach (var t in _texts) {
                 t.Dispose();
             }
             _texts.Clear();
 
             OpenGL.PushMatrix(() => {
-                GL.Color3(1.0, 1.0, 1.0);
                 GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
+
+                GL.Color3(1.0, 1.0, 1.0);
                 OpenGL.Begin(BeginMode.Quads, () => {
+                    GL.Vertex2(0, 50);
+                    GL.Vertex2(Window.WindowWidth, 50);
+                    GL.Vertex2(Window.WindowWidth, 0);
+                    GL.Vertex2(0, 0);
+                });
+
+                GL.Color3(0.0,0.0,0.0);
+                OpenGL.Begin(BeginMode.Lines, () => {
+                    GL.Vertex2(50,50);
+                    GL.Vertex2(50, Window.WindowHeight);
+
                     GL.Vertex2(0,50);
-                    GL.Vertex2(Window.WindowWidth,50);
-                    GL.Vertex2(Window.WindowWidth,0);
-                    GL.Vertex2(0,0);
+                    GL.Vertex2(50,50);
                 });
             });
 

@@ -24,7 +24,7 @@ namespace GLGraph.NET {
         public IList<Point> Points { get; set; }
         public Color Color { get; set; }
         public float Thickness { get; set; }
-        
+
         public Line(float thickness, Color color, IEnumerable<Point> points) {
             var copy = new List<Point>();
             copy.AddRange(points);
@@ -36,14 +36,14 @@ namespace GLGraph.NET {
 
         public void AddPoint(Point point) {
             Points.Add(point);
-            if(Changed != null) {
+            if (Changed != null) {
                 Changed(this, new LineChangedEventArgs(this));
             }
         }
 
         public void RemovePoint(int index) {
             Points.RemoveAt(index);
-            if(Changed != null) {
+            if (Changed != null) {
                 Changed(this, new LineChangedEventArgs(this));
             }
         }
@@ -61,7 +61,7 @@ namespace GLGraph.NET {
         }
 
         public double Finish {
-            get { return DataOrigin.X + DataWidth;  }
+            get { return DataOrigin.X + DataWidth; }
         }
 
         public double Start {
@@ -155,31 +155,44 @@ namespace GLGraph.NET {
             DrawDataAndMarkers();
 
             ConfigureLeftTickBar();
-            _leftTickBar.Draw();
-            _leftTickBar.DrawCrossLines();
-
             ConfigureBottomTickBar();
-            _bottomTickBar.Draw();
+
+            _leftTickBar.DrawCrossLines();
             _bottomTickBar.DrawCrossLines();
 
+            _leftTickBar.DrawTicks();
+            _bottomTickBar.DrawTicks();
+
+            DrawDeadSpace();
 
             _glcontrol.SwapBuffers();
         }
 
         void DrawDataAndMarkers() {
-            GL.PushMatrix();
+            OpenGL.PushMatrix(() => {
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
+                GL.Translate(50, 50, 0);
+                GL.Scale(Window.WindowWidth, Window.WindowHeight, 1.0);
 
-            GL.Scale(1.0/Window.WindowWidth, 1.0/Window.WindowHeight, 1.0);
-            GL.Translate(50, 50, 0);
-            GL.Scale(Window.WindowWidth, Window.WindowHeight, 1.0);
+                GL.Scale(1.0 / Window.DataWidth, 1.0 / Window.DataHeight, 0);
+                GL.Translate(-Window.DataOrigin.X, -Window.DataOrigin.Y, 0);
 
-            GL.Scale(1.0/Window.DataWidth, 1.0/Window.DataHeight, 0);
-            GL.Translate(-Window.DataOrigin.X, -Window.DataOrigin.Y, 0);
+                DrawData();
+                DrawMarkers();
+            });
+        }
 
-            DrawData();
-            DrawMarkers();
-
-            GL.PopMatrix();
+        void DrawDeadSpace() {
+            OpenGL.PushMatrix(() => {
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
+                GL.Color3(1.0, 1.0, 1.0);
+                OpenGL.Begin(BeginMode.Quads, () => {
+                    GL.Vertex2(0,50);
+                    GL.Vertex2(50,50);
+                    GL.Vertex2(50,0);
+                    GL.Vertex2(0,0);
+                });
+            });
         }
 
         public void StartPan(int xpos, int ypos) {
@@ -209,13 +222,13 @@ namespace GLGraph.NET {
             if (zdelta > 0) {
                 Window.DataWidth -= percentageWidth;
                 Window.DataHeight -= percentageHeight;
-                Window.DataOrigin = new Point(Window.DataOrigin.X + percentageWidth / 2.0, 
+                Window.DataOrigin = new Point(Window.DataOrigin.X + percentageWidth / 2.0,
                                               Window.DataOrigin.Y + percentageHeight / 2.0);
             } else {
                 Window.DataWidth += percentageWidth;
                 Window.DataHeight += percentageHeight;
                 Window.DataOrigin = new Point(Window.DataOrigin.X - percentageWidth / 2.0,
-                                              Window.DataOrigin.Y - percentageHeight /2.0);
+                                              Window.DataOrigin.Y - percentageHeight / 2.0);
             }
             Draw();
         }
