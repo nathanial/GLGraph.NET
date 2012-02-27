@@ -38,6 +38,19 @@ namespace GLGraph.NET {
             _texts.Clear();
 
             OpenGL.PushMatrix(() => {
+                //MoveFiftyPixelsUp();
+                GL.Color3(1.0,1.0,1.0);
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
+                OpenGL.Begin(BeginMode.Quads, () => {
+                    GL.Vertex2(0,Window.WindowHeight);
+                    GL.Vertex2(50,Window.WindowHeight);
+                    GL.Vertex2(50,0);
+                    GL.Vertex2(0,0);
+                });
+
+            });
+
+            OpenGL.PushMatrix(() => {
                 MoveFiftyPixelsUp();
 
                 GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.DataHeight, 1);
@@ -88,6 +101,7 @@ namespace GLGraph.NET {
                 GL.LineWidth(1.0f);
             });
         }
+
 
         public void Dispose() {
         }

@@ -25,6 +25,17 @@ namespace GLGraph.NET {
             _texts.Clear();
 
             OpenGL.PushMatrix(() => {
+                GL.Color3(1.0, 1.0, 1.0);
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
+                OpenGL.Begin(BeginMode.Quads, () => {
+                    GL.Vertex2(0,50);
+                    GL.Vertex2(Window.WindowWidth,50);
+                    GL.Vertex2(Window.WindowWidth,0);
+                    GL.Vertex2(0,0);
+                });
+            });
+
+            OpenGL.PushMatrix(() => {
                 MoveFiftyPixelsRight();
 
                 GL.Scale(1.0 / Window.DataWidth, 1.0 / Window.WindowHeight, 1);
@@ -65,8 +76,8 @@ namespace GLGraph.NET {
                 GL.Color4(0.0, 0.0, 0.0, 0.25);
                 GL.LineWidth(0.5f);
                 OpenGL.Begin(BeginMode.Lines, () => {
-                    for(var i = RangeStart; i < RangeStop; i++) {
-                        if(Math.Abs(i % MajorTick) < 0.0001) {
+                    for (var i = RangeStart; i < RangeStop; i++) {
+                        if (Math.Abs(i % MajorTick) < 0.0001) {
                             GL.Vertex2(TickStart + i, 0);
                             GL.Vertex2(TickStart + i, Window.WindowHeight);
                         }
