@@ -24,57 +24,9 @@ namespace GLGraph.NET {
             }
             _texts.Clear();
 
-            OpenGL.PushMatrix(() => {
-                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
-
-                GL.Color3(1.0, 1.0, 1.0);
-                OpenGL.Begin(BeginMode.Quads, () => {
-                    GL.Vertex2(0, 50);
-                    GL.Vertex2(Window.WindowWidth, 50);
-                    GL.Vertex2(Window.WindowWidth, 0);
-                    GL.Vertex2(0, 0);
-                });
-
-                GL.Color3(0.0,0.0,0.0);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    GL.Vertex2(50,50);
-                    GL.Vertex2(50, Window.WindowHeight);
-
-                    GL.Vertex2(0,50);
-                    GL.Vertex2(50,50);
-                });
-            });
-
-            OpenGL.PushMatrix(() => {
-                MoveFiftyPixelsRight();
-
-                GL.Scale(1.0 / Window.DataWidth, 1.0 / Window.WindowHeight, 1);
-                GL.Translate(-Window.DataOrigin.X, 0, 0);
-
-                GL.Color3(0.0, 0.0, 0.0);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    for (var i = RangeStart; i < RangeStop; i++) {
-                        if (Math.Abs(i % MajorTick) < 0.0001) {
-                            DrawMajorTick(TickStart + i);
-                        } else if (Math.Abs(i % MinorTick) < 0.0001) {
-                            DrawMinorTick(TickStart + i);
-                        }
-                    }
-                });
-            });
-
-            OpenGL.PushMatrix(() => {
-                MoveFiftyPixelsRight();
-                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
-
-                for (var i = RangeStart; i < RangeStop; i++) {
-                    if (Math.Abs(i % MajorTick) < 0.0001) {
-                        var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                        t.Draw(new Point(((i - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0));
-                        _texts.Add(t);
-                    }
-                }
-            });
+            DrawBackground();
+            DrawMajorMinorTicks();
+            DrawText();
         }
 
         public void DrawCrossLines() {
@@ -99,6 +51,63 @@ namespace GLGraph.NET {
 
         public void Dispose() {
         }
+
+        void DrawText() {
+            OpenGL.PushMatrix(() => {
+                MoveFiftyPixelsRight();
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
+
+                for (var i = RangeStart; i < RangeStop; i++) {
+                    if (Math.Abs(i % MajorTick) < 0.0001) {
+                        var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
+                        t.Draw(new Point(((i - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0));
+                        _texts.Add(t);
+                    }
+                }
+            });
+        }
+
+        void DrawMajorMinorTicks() {
+            OpenGL.PushMatrix(() => {
+                MoveFiftyPixelsRight();
+
+                GL.Scale(1.0 / Window.DataWidth, 1.0 / Window.WindowHeight, 1);
+                GL.Translate(-Window.DataOrigin.X, 0, 0);
+
+                GL.Color3(0.0, 0.0, 0.0);
+                OpenGL.Begin(BeginMode.Lines, () => {
+                    for (var i = RangeStart; i < RangeStop; i++) {
+                        if (Math.Abs(i % MajorTick) < 0.0001) {
+                            DrawMajorTick(TickStart + i);
+                        } else if (Math.Abs(i % MinorTick) < 0.0001) {
+                            DrawMinorTick(TickStart + i);
+                        }
+                    }
+                });
+            });
+        }
+
+        void DrawBackground() {
+            OpenGL.PushMatrix(() => {
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
+
+                GL.Color3(1.0, 1.0, 1.0);
+                OpenGL.Begin(BeginMode.Quads, () => {
+                    GL.Vertex2(0, 50);
+                    GL.Vertex2(Window.WindowWidth, 50);
+                    GL.Vertex2(Window.WindowWidth, 0);
+                    GL.Vertex2(0, 0);
+                });
+
+                GL.Color3(0.0, 0.0, 0.0);
+                OpenGL.Begin(BeginMode.Lines, () => {
+                    GL.Vertex2(50,50);
+                    GL.Vertex2(Window.WindowWidth,50);
+                });
+            });
+        }
+
+
 
         void DrawMajorTick(double x) {
             GL.Vertex2(x, 50);

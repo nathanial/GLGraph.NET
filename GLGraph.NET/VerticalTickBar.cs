@@ -37,26 +37,27 @@ namespace GLGraph.NET {
             }
             _texts.Clear();
 
+            DrawBackground();
+            DrawMajorMinorTicks();
+            DrawText();
+        }
+
+        void DrawText() {
             OpenGL.PushMatrix(() => {
-                //MoveFiftyPixelsUp();
-                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
+                MoveFiftyPixelsUp();
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
 
-                GL.Color3(1.0, 1.0, 1.0);
-                OpenGL.Begin(BeginMode.Quads, () => {
-                    GL.Vertex2(0,Window.WindowHeight);
-                    GL.Vertex2(50,Window.WindowHeight);
-                    GL.Vertex2(50,0);
-                    GL.Vertex2(0,0);
-                });
-
-                GL.Color3(0.0, 0.0, 0.0);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    GL.Vertex2(50, 50);
-                    GL.Vertex2(Window.WindowWidth,50);
-                });
-
+                for (var i = RangeStart; i < RangeStop; i++) {
+                    if (Math.Abs(i % MajorTick) < 0.0001) {
+                        var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
+                        t.Draw(new Point(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight - 17));
+                        _texts.Add(t);
+                    }
+                }
             });
+        }
 
+        void DrawMajorMinorTicks() {
             OpenGL.PushMatrix(() => {
                 MoveFiftyPixelsUp();
 
@@ -74,17 +75,27 @@ namespace GLGraph.NET {
                     }
                 });
             });
-            OpenGL.PushMatrix(() => {
-                MoveFiftyPixelsUp();
-                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
+        }
 
-                for (var i = RangeStart; i < RangeStop; i++) {
-                    if (Math.Abs(i % MajorTick) < 0.0001) {
-                        var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                        t.Draw(new Point(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight - 17));
-                        _texts.Add(t);
-                    }
-                }
+        void DrawBackground() {
+            OpenGL.PushMatrix(() => {
+                //MoveFiftyPixelsUp();
+                GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
+
+                GL.Color3(1.0, 1.0, 1.0);
+                OpenGL.Begin(BeginMode.Quads, () => {
+                    GL.Vertex2(0, Window.WindowHeight);
+                    GL.Vertex2(50, Window.WindowHeight);
+                    GL.Vertex2(50, 0);
+                    GL.Vertex2(0, 0);
+                });
+
+                GL.Color3(0.0, 0.0, 0.0);
+                GL.LineWidth(1.0f);
+                OpenGL.Begin(BeginMode.Lines, () => {
+                    GL.Vertex2(50,50);
+                    GL.Vertex2(50,Window.WindowHeight);
+                });
             });
         }
 
