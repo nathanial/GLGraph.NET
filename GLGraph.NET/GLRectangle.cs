@@ -1,54 +1,48 @@
+using System;
 using System.Windows;
 using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
     public class GLRectangle {
-        readonly Point _origin;
-        readonly GLSize _size;
-        readonly GLColor _color;
-        readonly bool _border;
+        public Point Origin { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public GLColor Color { get; set; }
+        public bool Border { get; set; }
+        public Size Size { get; set; }
 
-        public Point Origin { get { return _origin; } }
-        public double Width { get { return _size.Width; } }
-        public double Height { get { return _size.Height; } }
-        public GLColor Color { get { return _color; } }
-        public bool Border { get { return _border; } }
 
-        public GLRectangle(GLColor color, bool border, Point origin, GLSize size) {
-            _origin = origin;
-            _border = border;
-            _size = size;
-            _color = color;
+        public GLRectangle(GLColor color, bool border, Point origin, Size size) {
+            Origin = origin;
+            Border = border;
+            Size = size;
+            Color = color;
         }
 
         public void Draw() {
-            _color.Draw();
+            Color.Draw();
             DrawCore();
         }
 
         public void DrawFaded() {
-            _color.DrawFaded();
+            Color.DrawFaded();
             DrawCore();
         }
 
         public Point TopLeft {
-            get { return new Point(_origin.X, _origin.Y + _size.Height); }
+            get { return new Point(Origin.X, Origin.Y + Size.Height); }
         }
 
         public Point TopRight {
-            get { return new Point(_origin.X + _size.Width, _origin.Y + _size.Height); }
+            get { return new Point(Origin.X + Size.Width, Origin.Y + Size.Height); }
         }
 
         public Point BottomRight {
-            get { return new Point(_origin.X + _size.Width, _origin.Y); }
+            get { return new Point(Origin.X + Size.Width, Origin.Y); }
         }
 
         public Point BottomLeft {
-            get { return new Point(_origin.X, _origin.Y); }
-        }
-
-        public Size Size {
-            get { return new Size(Width, Height); }
+            get { return new Point(Origin.X, Origin.Y); }
         }
 
         void DrawCore() {
@@ -58,14 +52,14 @@ namespace GLGraph.NET {
 
             GL.Color3(0.0f, 0.0f, 0.0f);
             OpenGL.DrawLines(
-                _origin.X, _origin.Y,
-                _origin.X, _origin.Y + _size.Height,
-                _origin.X, _origin.Y + _size.Height,
-                _origin.X + _size.Width, _origin.Y + _size.Height,
-                _origin.X + _size.Width, _origin.Y + _size.Height,
-                _origin.X + _size.Width, _origin.Y,
-                _origin.X + _size.Width, _origin.Y,
-                _origin.X, _origin.Y);
+                Origin.X, Origin.Y,
+                Origin.X, Origin.Y + Size.Height,
+                Origin.X, Origin.Y + Size.Height,
+                Origin.X + Size.Width, Origin.Y + Size.Height,
+                Origin.X + Size.Width, Origin.Y + Size.Height,
+                Origin.X + Size.Width, Origin.Y,
+                Origin.X + Size.Width, Origin.Y,
+                Origin.X, Origin.Y);
         }
     }
 }

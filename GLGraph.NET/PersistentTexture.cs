@@ -35,8 +35,8 @@ namespace GLGraph.NET {
             GL.Color3(1.0, 1.0, 1.0);
             GL.BindTexture(TextureTarget.Texture2D, _texture);
 
-            var height = new Point(0, _bitmap.Height).ToView(window).Y;
-            var width = new Point(_bitmap.Width, 0).ToView(window).X;
+            var height = GetMagnitude(new Point(0, _bitmap.Height),window).Y;
+            var width = GetMagnitude(new Point(_bitmap.Width, 0), window).X;
 
             var ox = location.X - (width / 2.0);
             var oy = location.Y - (height / 2.0);
@@ -50,6 +50,16 @@ namespace GLGraph.NET {
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
+
+        public static Point GetMagnitude(Point p, GraphWindow w) {
+            var xscale = (w.Finish - w.Start) / w.WindowWidth;
+            var yscale = (w.Top - w.Bottom) / w.WindowHeight;
+            const double xoffset = 0; //window x start
+            const double yoffset = 0; //window y start
+            return new Point((p.X - xoffset) * xscale,
+                             (p.Y - yoffset) * yscale);
+        }
+
 
         public void Dispose() {
             _bitmap.Dispose();

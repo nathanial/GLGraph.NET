@@ -134,6 +134,7 @@
       <HintPath>lib\OpenTK.GLControl.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -155,17 +156,11 @@
     <Compile Include="GLRectangle.cs" />
     <Compile Include="GLSize.cs" />
     <Compile Include="HorizontalTickBar.cs" />
+    <Compile Include="LineGraph.cs" />
     <Compile Include="OpenGL.cs" />
     <Compile Include="PersistentTexture.cs" />
     <Compile Include="Pools.cs" />
-    <Compile Include="LineGraph.xaml.cs">
-      <DependentUpon>LineGraph.xaml</DependentUpon>
-    </Compile>
     <Compile Include="VerticalTickBar.cs" />
-    <Page Include="LineGraph.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TextRenderer.cs" />

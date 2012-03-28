@@ -5,9 +5,12 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using Size = System.Drawing.Size;
 
 namespace GLGraph.NET {
 
@@ -25,7 +28,7 @@ namespace GLGraph.NET {
         public Color Color { get; set; }
         public float Thickness { get; set; }
 
-        public Line(float thickness, Color color, IEnumerable<Point> points) {
+        public Line(float thickness, Color color, Point[] points) {
             var copy = new List<Point>();
             copy.AddRange(points);
 
@@ -71,6 +74,51 @@ namespace GLGraph.NET {
         public double Bottom {
             get { return DataOrigin.Y; }
         }
+
+        public Point ScreenToView(Point location) {
+            //GL.Scale(1.0 / WindowWidth, 1.0 / WindowHeight, 1.0);
+            //GL.Translate(50, 50, 0);
+            //GL.Scale(WindowWidth, WindowHeight, 1.0);
+
+            //GL.Scale(1.0 / DataWidth, 1.0 / DataHeight, 0);
+            //GL.Translate(-DataOrigin.X, -DataOrigin.Y, 0);
+
+            var x = location.X;
+            var y = location.Y;
+
+            y = WindowHeight - y;
+
+            x -= 50;
+            y -= 50;
+
+
+            x = x * (DataWidth / WindowWidth);
+            y = y * (DataHeight / WindowHeight);
+
+            x += DataOrigin.X;
+            y += DataOrigin.Y;
+
+            return new Point(x,y);
+        }
+
+        public Point ViewToScreen(Point location) {
+            var x = location.X;
+            var y = location.Y;
+
+            x -= DataOrigin.X;
+            y -= DataOrigin.Y;
+
+            x = x / (DataWidth / WindowWidth);
+            y = y / (DataHeight / WindowHeight);
+
+            x += 50;
+            y += 50;
+
+            y = WindowHeight - y;
+
+            return new Point(x,y);
+
+        }
     }
 
     public interface ILineGraph {
@@ -82,9 +130,13 @@ namespace GLGraph.NET {
         void Cleanup();
 
         bool TextEnabled { get; set; }
+
+        Control Control { get; }
+
+        GraphWindow Window { get; }
     }
 
-    public partial class LineGraph : ILineGraph {
+    public class LineGraph : ILineGraph {
         readonly ObservableCollection<IDrawable> _markers = new ObservableCollection<IDrawable>();
         readonly ObservableCollection<Line> _lines = new ObservableCollection<Line>();
         readonly IDictionary<Line, DisplayList> _displayLists = new Dictionary<Line, DisplayList>();
@@ -94,7 +146,9 @@ namespace GLGraph.NET {
         ITickBar _bottomTickBar;
         int _xstart, _ystart;
 
-        GraphWindow Window { get; set; }
+        bool _nopaint;
+
+        public GraphWindow Window { get; private set; }
 
         public ObservableCollection<IDrawable> Markers { get { return _markers; } }
         public ObservableCollection<Line> Lines { get { return _lines; } }
@@ -105,10 +159,9 @@ namespace GLGraph.NET {
         const string ZeroError = "WindowWidth cannot be zero, consider initializing LineGraph in the host's Loaded event";
 
         public LineGraph() {
-            InitializeComponent();
-            if (DesignerProperties.GetIsInDesignMode(this)) return;
+            if(LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
+            
             TextEnabled = true;
-            SnapsToDevicePixels = true;
             InitializeUserControl();
             InitializeOpenGL();
 
@@ -130,6 +183,7 @@ namespace GLGraph.NET {
                     }
                 }
             };
+
         }
 
         public void Cleanup() {
@@ -187,10 +241,10 @@ namespace GLGraph.NET {
                 GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
                 GL.Color3(1.0, 1.0, 1.0);
                 OpenGL.Begin(BeginMode.Quads, () => {
-                    GL.Vertex2(0,50);
-                    GL.Vertex2(50,50);
-                    GL.Vertex2(50,0);
-                    GL.Vertex2(0,0);
+                    GL.Vertex2(0, 50);
+                    GL.Vertex2(50, 50);
+                    GL.Vertex2(50, 0);
+                    GL.Vertex2(0, 0);
                 });
             });
         }
@@ -240,8 +294,8 @@ namespace GLGraph.NET {
             Window.DataOrigin = rect.Location;
             Window.DataWidth = rect.Width;
             Window.DataHeight = rect.Height;
-            Window.WindowWidth = (int)ActualWidth;
-            Window.WindowHeight = (int)ActualHeight;
+            Window.WindowWidth = _glcontrol.Width;
+            Window.WindowHeight = _glcontrol.Height;
 
             if (Window.WindowWidth == 0) throw new Exception(ZeroError);
             if (Window.WindowHeight == 0) throw new Exception(ZeroError);
@@ -253,6 +307,8 @@ namespace GLGraph.NET {
                 Draw();
             }
         }
+
+        public Control Control { get { return _glcontrol; } }
 
         void AddLine(Line line) {
             LoadDisplayList(line);
@@ -268,16 +324,38 @@ namespace GLGraph.NET {
 
         void InitializeUserControl() {
             _glcontrol = new GLControl();
-            Child = _glcontrol;
-            _glcontrol.Resize += (s, args) => SetWindowSize(_glcontrol.Width, _glcontrol.Height);
+            _glcontrol.Resize += (s, args) => DelayedResize();
             _glcontrol.MouseDown += (s, args) => StartPan(args.X, args.Y);
             _glcontrol.MouseMove += (s, args) => Pan(args.X, args.Y);
             _glcontrol.MouseUp += (s, args) => StopPan();
             _glcontrol.MouseWheel += (s, args) => Zoom(args.Delta);
-            _glcontrol.Paint += (s, args) => Draw();
-            Loaded += (s, args) => Draw();
+            _glcontrol.Paint += (s, args) => {
+                if (!_nopaint) {
+                    Draw();
+                }
+            };
         }
 
+        DispatcherTimer _resizeTimer;
+        Size _lastSize;
+
+        void DelayedResize() {
+            if(_resizeTimer != null) return;
+            _nopaint = true;
+            _resizeTimer = new DispatcherTimer();
+            _resizeTimer.Interval = TimeSpan.FromSeconds(.1);
+            _resizeTimer.Tick += delegate {
+                if(_lastSize == _glcontrol.Size) {
+                    _resizeTimer.Stop();
+                    _resizeTimer = null;
+                    _nopaint = false;
+                    SetWindowSize(_glcontrol.Width,_glcontrol.Height);
+                } else {
+                    _lastSize = _glcontrol.Size;
+                }
+            };
+            _resizeTimer.Start();
+        }
 
         void InitializeOpenGL() {
             _glcontrol.MakeCurrent();
@@ -289,8 +367,8 @@ namespace GLGraph.NET {
 
             var aliasedLineWidthRange = new float[2];
             var antialiasedLineWidthRange = new float[2];
-            var granularity = 0.0f;
-            GL.GetFloat(GetPName.AliasedLineWidthRange,aliasedLineWidthRange);
+            float granularity;
+            GL.GetFloat(GetPName.AliasedLineWidthRange, aliasedLineWidthRange);
             GL.GetFloat(GetPName.SmoothLineWidthRange, antialiasedLineWidthRange);
             GL.GetFloat(GetPName.SmoothLineWidthGranularity, out granularity);
 
@@ -345,7 +423,7 @@ namespace GLGraph.NET {
             _leftTickBar.MinorTick = 1;
             _leftTickBar.TickStart = 0;
 
-            while(Window.DataHeight / _leftTickBar.MajorTick > 20) {
+            while (Window.DataHeight / _leftTickBar.MajorTick > 20) {
                 _leftTickBar.MinorTick = _leftTickBar.MajorTick;
                 _leftTickBar.MajorTick *= 2;
             }
