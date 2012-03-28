@@ -43,14 +43,15 @@ namespace GLGraph.NET.Example.Winforms {
                         Cursor = hand;
                     }
                 } else {
+                    _graph.PanningIsEnabled = true;
                     Cursor = System.Windows.Forms.Cursors.Default;
                 }
-
             };
 
             _graph.Control.MouseDown += (s, args) => {
                 if (args.Button == MouseButtons.Left) {
                     if (Cursor == hand) {
+                        _graph.PanningIsEnabled = false;
                         Cursor = handDrag;
                     }
                 }
@@ -58,6 +59,7 @@ namespace GLGraph.NET.Example.Winforms {
 
             _graph.Control.MouseUp += (s, args) => {
                 if(Cursor == handDrag) {
+                    _graph.PanningIsEnabled = true;
                     Cursor = hand;
                 }
             };

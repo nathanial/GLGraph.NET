@@ -134,6 +134,8 @@ namespace GLGraph.NET {
         Control Control { get; }
 
         GraphWindow Window { get; }
+
+        bool PanningIsEnabled { get; set; }
     }
 
     public class LineGraph : ILineGraph {
@@ -155,11 +157,24 @@ namespace GLGraph.NET {
 
         public bool TextEnabled { get; set; }
 
+        bool _panningIsEnabled;
+        public bool PanningIsEnabled {
+            get { return _panningIsEnabled; }
+            set {
+                _panningIsEnabled = value;
+                if (!value) {
+                    _panningStarted = false;
+                }
+            }
+        }
+
         GLControl _glcontrol;
         const string ZeroError = "WindowWidth cannot be zero, consider initializing LineGraph in the host's Loaded event";
 
         public LineGraph() {
             if(LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
+
+            PanningIsEnabled = true;
             
             TextEnabled = true;
             InitializeUserControl();
@@ -325,9 +340,18 @@ namespace GLGraph.NET {
         void InitializeUserControl() {
             _glcontrol = new GLControl();
             _glcontrol.Resize += (s, args) => DelayedResize();
-            _glcontrol.MouseDown += (s, args) => StartPan(args.X, args.Y);
-            _glcontrol.MouseMove += (s, args) => Pan(args.X, args.Y);
-            _glcontrol.MouseUp += (s, args) => StopPan();
+            _glcontrol.MouseDown += (s, args) => {
+                if(!PanningIsEnabled) return;
+                StartPan(args.X, args.Y);
+            };
+            _glcontrol.MouseMove += (s, args) => {
+                if (!PanningIsEnabled) return;
+                Pan(args.X, args.Y);
+            };
+            _glcontrol.MouseUp += (s, args) => {
+                if (!PanningIsEnabled) return;
+                StopPan();
+            };
             _glcontrol.MouseWheel += (s, args) => Zoom(args.Delta);
             _glcontrol.Paint += (s, args) => {
                 if (!_nopaint) {
