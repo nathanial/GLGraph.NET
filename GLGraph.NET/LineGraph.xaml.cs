@@ -287,6 +287,13 @@ namespace GLGraph.NET {
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
 
+            var aliasedLineWidthRange = new float[2];
+            var antialiasedLineWidthRange = new float[2];
+            var granularity = 0.0f;
+            GL.GetFloat(GetPName.AliasedLineWidthRange,aliasedLineWidthRange);
+            GL.GetFloat(GetPName.SmoothLineWidthRange, antialiasedLineWidthRange);
+            GL.GetFloat(GetPName.SmoothLineWidthGranularity, out granularity);
+
             _leftTickBar = new VerticalTickBar();
             _bottomTickBar = new HorizontalTickBar();
         }
@@ -315,7 +322,7 @@ namespace GLGraph.NET {
 
         void LoadDisplayList(Line line) {
             _displayLists[line] = new DisplayList(() => {
-                GL.LineWidth(1.0f);
+                GL.LineWidth(line.Thickness);
                 GL.Begin(BeginMode.Lines);
                 var size = line.Points.Count;
                 GL.Color4(line.Color.R / 255.0, line.Color.G / 255.0,

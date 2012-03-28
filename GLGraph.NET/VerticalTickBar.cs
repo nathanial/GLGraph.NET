@@ -122,6 +122,11 @@ namespace GLGraph.NET {
 
 
         public void Dispose() {
+            foreach (var t in _texts) {
+                t.Dispose();
+            }
+            _texts.Clear();
+            _font.Dispose();
         }
 
         void MoveFiftyPixelsUp() {
