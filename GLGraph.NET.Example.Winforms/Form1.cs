@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -8,6 +9,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using Point = System.Windows.Point;
+using Size = System.Windows.Size;
 
 namespace GLGraph.NET.Example.Winforms {
     public partial class Form1 : Form {
@@ -16,6 +18,9 @@ namespace GLGraph.NET.Example.Winforms {
         public Form1() {
             InitializeComponent();
             if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
+
+            var hand = CustomCursor.CreateCursor((Bitmap) Image.FromFile("Cursors\\cursor_hand.png"), 8, 8);
+            var handDrag = CustomCursor.CreateCursor((Bitmap)Image.FromFile("Cursors\\cursor_drag_hand.png"), 8, 8);
 
             _graph = new LineGraph();
 
@@ -33,9 +38,30 @@ namespace GLGraph.NET.Example.Winforms {
                 var wloc = new Point(args.Location.X, args.Location.Y);
                 var hit = thresholds.FirstOrDefault(x => x.ScreenPosition(_graph.Window).Contains(wloc));
 
-                Cursor = hit != null ? System.Windows.Forms.Cursors.SizeAll : System.Windows.Forms.Cursors.Default;
+                if (hit != null) {
+                    if (Cursor != hand && Cursor != handDrag) {
+                        Cursor = hand;
+                    }
+                } else {
+                    Cursor = System.Windows.Forms.Cursors.Default;
+                }
 
             };
+
+            _graph.Control.MouseDown += (s, args) => {
+                if (args.Button == MouseButtons.Left) {
+                    if (Cursor == hand) {
+                        Cursor = handDrag;
+                    }
+                }
+            };
+
+            _graph.Control.MouseUp += (s, args) => {
+                if(Cursor == handDrag) {
+                    Cursor = hand;
+                }
+            };
+
 
             _graph.Control.MouseClick += (s, args) => {
                 if (args.Button == MouseButtons.Right) {
