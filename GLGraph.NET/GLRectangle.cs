@@ -1,5 +1,4 @@
-using System;
-using System.Windows;
+
 using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
@@ -11,7 +10,6 @@ namespace GLGraph.NET {
         public GLColor Color { get; set; }
         public bool Border { get; set; }
         public GLSize Size { get; set; }
-
 
         public GLRectangle(GLColor color, bool border, GLPoint origin, GLSize size) {
             Origin = origin;

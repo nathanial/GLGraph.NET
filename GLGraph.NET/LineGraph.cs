@@ -294,7 +294,7 @@ namespace GLGraph.NET {
                 Window.DataWidth += percentageWidth;
                 Window.DataHeight += percentageHeight;
                 Window.DataOrigin = new GLPoint(Window.DataOrigin.X - percentageWidth / 2.0,
-                                              Window.DataOrigin.Y - percentageHeight / 2.0);
+                                                Window.DataOrigin.Y - percentageHeight / 2.0);
             }
             Draw();
         }
