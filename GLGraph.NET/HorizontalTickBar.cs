@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.Windows;
 using OpenTK.Graphics.OpenGL;
-using Point = System.Windows.Point;
 
 namespace GLGraph.NET {
     public class HorizontalTickBar : ITickBar {
@@ -60,7 +58,7 @@ namespace GLGraph.NET {
                 for (var i = RangeStart; i < RangeStop; i++) {
                     if (Math.Abs(i % MajorTick) < 0.0001) {
                         var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                        t.Draw(new Point(((i - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0));
+                        t.Draw(new GLPoint(((i - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0));
                         _texts.Add(t);
                     }
                 }

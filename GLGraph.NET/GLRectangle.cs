@@ -3,16 +3,17 @@ using System.Windows;
 using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
+
     public class GLRectangle {
-        public Point Origin { get; set; }
+        public GLPoint Origin { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
         public GLColor Color { get; set; }
         public bool Border { get; set; }
-        public Size Size { get; set; }
+        public GLSize Size { get; set; }
 
 
-        public GLRectangle(GLColor color, bool border, Point origin, Size size) {
+        public GLRectangle(GLColor color, bool border, GLPoint origin, GLSize size) {
             Origin = origin;
             Border = border;
             Size = size;
@@ -29,20 +30,20 @@ namespace GLGraph.NET {
             DrawCore();
         }
 
-        public Point TopLeft {
-            get { return new Point(Origin.X, Origin.Y + Size.Height); }
+        public GLPoint TopLeft {
+            get { return new GLPoint(Origin.X, Origin.Y + Size.Height); }
         }
 
-        public Point TopRight {
-            get { return new Point(Origin.X + Size.Width, Origin.Y + Size.Height); }
+        public GLPoint TopRight {
+            get { return new GLPoint(Origin.X + Size.Width, Origin.Y + Size.Height); }
         }
 
-        public Point BottomRight {
-            get { return new Point(Origin.X + Size.Width, Origin.Y); }
+        public GLPoint BottomRight {
+            get { return new GLPoint(Origin.X + Size.Width, Origin.Y); }
         }
 
-        public Point BottomLeft {
-            get { return new Point(Origin.X, Origin.Y); }
+        public GLPoint BottomLeft {
+            get { return new GLPoint(Origin.X, Origin.Y); }
         }
 
         void DrawCore() {

@@ -1,10 +1,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Windows;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
-using Point = System.Windows.Point;
 
 namespace GLGraph.NET {
 
@@ -12,11 +10,9 @@ namespace GLGraph.NET {
         readonly int _texture;
         readonly Bitmap _bitmap;
 
-        public PersistentTexture(Uri uri) {
+        public PersistentTexture(Bitmap bitmap) {
             _texture = GL.GenTexture();
-            var stream = Application.GetResourceStream(uri).Stream;
-            _bitmap = new Bitmap(stream);
-            stream.Close();
+            _bitmap = bitmap;
             var data = _bitmap.LockBits(new Rectangle(0, 0, _bitmap.Width, _bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             GL.BindTexture(TextureTarget.Texture2D, _texture);
@@ -51,13 +47,13 @@ namespace GLGraph.NET {
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        public static Point GetMagnitude(Point p, GraphWindow w) {
+        public static GLPoint GetMagnitude(Point p, GraphWindow w) {
             var xscale = (w.Finish - w.Start) / w.WindowWidth;
             var yscale = (w.Top - w.Bottom) / w.WindowHeight;
             const double xoffset = 0; //window x start
             const double yoffset = 0; //window y start
-            return new Point((p.X - xoffset) * xscale,
-                             (p.Y - yoffset) * yscale);
+            return new GLPoint((p.X - xoffset) * xscale,
+                              (p.Y - yoffset) * yscale);
         }
 
 

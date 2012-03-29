@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using OpenTK.Graphics.OpenGL;
-using Point = System.Windows.Point;
 
 namespace GLGraph.NET {
 
@@ -50,7 +49,7 @@ namespace GLGraph.NET {
                 for (var i = RangeStart; i < RangeStop; i++) {
                     if (Math.Abs(i % MajorTick) < 0.0001) {
                         var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                        t.Draw(new Point(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight - 17));
+                        t.Draw(new GLPoint(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight - 17));
                         _texts.Add(t);
                     }
                 }

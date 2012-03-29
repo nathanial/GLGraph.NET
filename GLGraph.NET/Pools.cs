@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GLGraph.NET {
 
     public class IntegerPool {
-        readonly C5.TreeSet<int> _pool = new C5.TreeSet<int>();
+        readonly SortedSet<int> _pool = new SortedSet<int>();
 
         public IntegerPool(int start, int stop) {
             for (var i = start; i < stop; i++) {
@@ -12,8 +13,8 @@ namespace GLGraph.NET {
         }
 
         public int Take() {
-            if (_pool.IsEmpty) throw new Exception("pool is empty");
-            var i = _pool.FindMin();
+            if (_pool.Count == 0) throw new Exception("pool is empty");
+            var i = _pool.Min;
             _pool.Remove(i);
             return i;
         }

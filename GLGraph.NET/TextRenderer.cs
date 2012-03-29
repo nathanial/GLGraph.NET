@@ -2,7 +2,6 @@
 using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
-using Point = System.Windows.Point;
 
 namespace GLGraph.NET {
     public class PieceOfText {
@@ -17,7 +16,7 @@ namespace GLGraph.NET {
             _texture = GL.GenTexture();
         }
 
-        public void Draw(Point origin) {
+        public void Draw(GLPoint origin) {
             var width = 200;
             var height = 50;
             var bmp = new Bitmap(width, height);

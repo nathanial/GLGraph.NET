@@ -1,10 +1,9 @@
 using System;
-using System.Windows;
 using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
     public static class OpenGL {
-        public static void DrawQuad(Point topLeft, Point topRight, Point bottomRight, Point bottomLeft) {
+        public static void DrawQuad(GLPoint topLeft, GLPoint topRight, GLPoint bottomRight, GLPoint bottomLeft) {
             GL.Begin(BeginMode.Quads);
             GL.Vertex2(topLeft.X, topLeft.Y);
             GL.Vertex2(topRight.X, topRight.Y);
@@ -39,13 +38,13 @@ namespace GLGraph.NET {
             GL.End();
         }
 
-        public static void DrawVertices(Point[] points) {
+        public static void DrawVertices(GLPoint[] points) {
             foreach (var p in points) {
                 GL.Vertex2(p.X, p.Y);
             }
         }
 
-        public static void DrawMany(int start, int finish, int step, Func<int, Point[]> fun) {
+        public static void DrawMany(int start, int finish, int step, Func<int, GLPoint[]> fun) {
             DrawVertices(Functions.SelectOverMany(start, finish, step, fun));
         }
 

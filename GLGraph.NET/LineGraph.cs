@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Media;
-using System.Windows.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using Size = System.Drawing.Size;
@@ -24,12 +20,12 @@ namespace GLGraph.NET {
     public class Line {
         public event EventHandler<LineChangedEventArgs> Changed;
 
-        public IList<Point> Points { get; set; }
-        public Color Color { get; set; }
+        public IList<GLPoint> Points { get; set; }
+        public GLColor Color { get; set; }
         public float Thickness { get; set; }
 
-        public Line(float thickness, Color color, Point[] points) {
-            var copy = new List<Point>();
+        public Line(float thickness, GLColor color, GLPoint[] points) {
+            var copy = new List<GLPoint>();
             copy.AddRange(points);
 
             Color = color;
@@ -37,7 +33,7 @@ namespace GLGraph.NET {
             Points = copy;
         }
 
-        public void AddPoint(Point point) {
+        public void AddPoint(GLPoint point) {
             Points.Add(point);
             if (Changed != null) {
                 Changed(this, new LineChangedEventArgs(this));
@@ -53,7 +49,7 @@ namespace GLGraph.NET {
     }
 
     public class GraphWindow {
-        public Point DataOrigin { get; set; }
+        public GLPoint DataOrigin { get; set; }
         public double DataWidth { get; set; }
         public double DataHeight { get; set; }
         public int WindowHeight { get; set; }
@@ -75,7 +71,7 @@ namespace GLGraph.NET {
             get { return DataOrigin.Y; }
         }
 
-        public Point ScreenToView(Point location) {
+        public GLPoint ScreenToView(GLPoint location) {
             //GL.Scale(1.0 / WindowWidth, 1.0 / WindowHeight, 1.0);
             //GL.Translate(50, 50, 0);
             //GL.Scale(WindowWidth, WindowHeight, 1.0);
@@ -98,10 +94,10 @@ namespace GLGraph.NET {
             x += DataOrigin.X;
             y += DataOrigin.Y;
 
-            return new Point(x,y);
+            return new GLPoint(x, y);
         }
 
-        public Point ViewToScreen(Point location) {
+        public GLPoint ViewToScreen(GLPoint location) {
             var x = location.X;
             var y = location.Y;
 
@@ -116,7 +112,7 @@ namespace GLGraph.NET {
 
             y = WindowHeight - y;
 
-            return new Point(x,y);
+            return new GLPoint(x, y);
 
         }
     }
@@ -126,7 +122,7 @@ namespace GLGraph.NET {
         ObservableCollection<IDrawable> Markers { get; }
 
         void Draw();
-        void Display(Rect rect, bool draw);
+        void Display(GLRect rect, bool draw);
         void Cleanup();
 
         bool TextEnabled { get; set; }
@@ -172,10 +168,10 @@ namespace GLGraph.NET {
         const string ZeroError = "WindowWidth cannot be zero, consider initializing LineGraph in the host's Loaded event";
 
         public LineGraph() {
-            if(LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
 
             PanningIsEnabled = true;
-            
+
             TextEnabled = true;
             InitializeUserControl();
             InitializeOpenGL();
@@ -221,13 +217,13 @@ namespace GLGraph.NET {
 
             SetupProjection();
 
-            DrawDataAndMarkers();
-
             ConfigureLeftTickBar();
             ConfigureBottomTickBar();
 
             _leftTickBar.DrawCrossLines();
             _bottomTickBar.DrawCrossLines();
+
+            DrawDataAndMarkers();
 
             _leftTickBar.DrawTicks();
             _bottomTickBar.DrawTicks();
@@ -280,7 +276,7 @@ namespace GLGraph.NET {
             var yoffset = ((ypos - _ystart) / (Window.WindowHeight * 1.0)) * (Window.DataHeight);
             _xstart = xpos;
             _ystart = ypos;
-            Window.DataOrigin = new Point(Window.DataOrigin.X + xoffset, Window.DataOrigin.Y + yoffset);
+            Window.DataOrigin = new GLPoint(Window.DataOrigin.X + xoffset, Window.DataOrigin.Y + yoffset);
             Draw();
         }
 
@@ -291,18 +287,18 @@ namespace GLGraph.NET {
             if (zdelta > 0) {
                 Window.DataWidth -= percentageWidth;
                 Window.DataHeight -= percentageHeight;
-                Window.DataOrigin = new Point(Window.DataOrigin.X + percentageWidth / 2.0,
+                Window.DataOrigin = new GLPoint(Window.DataOrigin.X + percentageWidth / 2.0,
                                               Window.DataOrigin.Y + percentageHeight / 2.0);
             } else {
                 Window.DataWidth += percentageWidth;
                 Window.DataHeight += percentageHeight;
-                Window.DataOrigin = new Point(Window.DataOrigin.X - percentageWidth / 2.0,
+                Window.DataOrigin = new GLPoint(Window.DataOrigin.X - percentageWidth / 2.0,
                                               Window.DataOrigin.Y - percentageHeight / 2.0);
             }
             Draw();
         }
 
-        public void Display(Rect rect, bool draw) {
+        public void Display(GLRect rect, bool draw) {
             if (Window == null) {
                 Window = new GraphWindow();
             }
@@ -339,9 +335,11 @@ namespace GLGraph.NET {
 
         void InitializeUserControl() {
             _glcontrol = new GLControl();
-            _glcontrol.Resize += (s, args) => DelayedResize();
+            _glcontrol.Resize += (s, args) => {
+                SetWindowSize(_glcontrol.Width, _glcontrol.Height);
+            };
             _glcontrol.MouseDown += (s, args) => {
-                if(!PanningIsEnabled) return;
+                if (!PanningIsEnabled) return;
                 StartPan(args.X, args.Y);
             };
             _glcontrol.MouseMove += (s, args) => {
@@ -358,27 +356,6 @@ namespace GLGraph.NET {
                     Draw();
                 }
             };
-        }
-
-        DispatcherTimer _resizeTimer;
-        Size _lastSize;
-
-        void DelayedResize() {
-            if(_resizeTimer != null) return;
-            _nopaint = true;
-            _resizeTimer = new DispatcherTimer();
-            _resizeTimer.Interval = TimeSpan.FromSeconds(.1);
-            _resizeTimer.Tick += delegate {
-                if(_lastSize == _glcontrol.Size) {
-                    _resizeTimer.Stop();
-                    _resizeTimer = null;
-                    _nopaint = false;
-                    SetWindowSize(_glcontrol.Width,_glcontrol.Height);
-                } else {
-                    _lastSize = _glcontrol.Size;
-                }
-            };
-            _resizeTimer.Start();
         }
 
         void InitializeOpenGL() {
@@ -427,8 +404,8 @@ namespace GLGraph.NET {
                 GL.LineWidth(line.Thickness);
                 GL.Begin(BeginMode.Lines);
                 var size = line.Points.Count;
-                GL.Color4(line.Color.R / 255.0, line.Color.G / 255.0,
-                          line.Color.B / 255.0, line.Color.A / 255.0);
+                GL.Color4(line.Color.R, line.Color.G,
+                          line.Color.B, line.Color.A);
                 for (var j = 0; j < size - 1; j++) {
                     var p1 = line.Points[j];
                     var p2 = line.Points[j + 1];

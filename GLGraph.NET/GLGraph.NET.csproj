@@ -122,9 +122,6 @@
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="C5, Version=2.0.4398.23817, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\dchem\desktop\packages\C5.2.0.4398.23817\lib\net40\C5.dll</HintPath>
-    </Reference>
     <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\OpenTK.dll</HintPath>
@@ -134,18 +131,12 @@
       <HintPath>lib\OpenTK.GLControl.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DisplayList.cs" />
@@ -153,6 +144,8 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="GLColor.cs" />
+    <Compile Include="GLPoint.cs" />
+    <Compile Include="GLRect.cs" />
     <Compile Include="GLRectangle.cs" />
     <Compile Include="GLSize.cs" />
     <Compile Include="HorizontalTickBar.cs" />
@@ -184,7 +177,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
