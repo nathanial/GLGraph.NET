@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows;
@@ -17,7 +19,7 @@ namespace GLGraph.NET.Example.Winforms {
             InitializeComponent();
             if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
 
-            var hand = CustomCursor.CreateCursor((Bitmap) Image.FromFile("Cursors\\cursor_hand.png"), 8, 8);
+            var hand = CustomCursor.CreateCursor((Bitmap)Image.FromFile("Cursors\\cursor_hand.png"), 8, 8);
             var handDrag = CustomCursor.CreateCursor((Bitmap)Image.FromFile("Cursors\\cursor_drag_hand.png"), 8, 8);
 
             _graph = new LineGraph();
@@ -40,7 +42,7 @@ namespace GLGraph.NET.Example.Winforms {
                     if (thresholds.Length == 0) return;
                     var wloc = new GLPoint(args.Location.X, args.Location.Y);
                     var hit = thresholds.FirstOrDefault(x => x.ScreenPosition(_graph.Window).Contains(wloc.X, wloc.Y));
-                    
+
                     if (hit != null) {
                         _theDragged = hit;
                         if (Cursor != hand && Cursor != handDrag) {
@@ -65,7 +67,7 @@ namespace GLGraph.NET.Example.Winforms {
             };
 
             _graph.Control.MouseUp += (s, args) => {
-                if(Cursor == handDrag) {
+                if (Cursor == handDrag) {
                     _graph.PanningIsEnabled = true;
                     Cursor = hand;
                     _dragging = false;
@@ -77,15 +79,61 @@ namespace GLGraph.NET.Example.Winforms {
 
             _graph.Control.MouseClick += (s, args) => {
                 if (args.Button == MouseButtons.Right) {
-                    var wloc = new GLPoint(args.Location.X, args.Location.Y);
-                    var newThreshold = new MenuItem("New Threshold");
-                    newThreshold.Click += delegate {
-                        _graph.Markers.Add(new ThresholdMarker(_graph.Window, wloc, new GLSize(10, 1)));
+                    var origin = _graph.Window.ScreenToView(new GLPoint(args.Location.X, args.Location.Y));
+                    var size = new GLSize(10, 1);
+
+                    var group1 = new MenuItem("Group 1");
+                    group1.Click += delegate {
+                        _graph.Markers.Add(new ThresholdMarker(origin, size, Color.HotPink.ToGLColor()));
                         _graph.Draw();
                     };
+
+                    var group2 = new MenuItem("Group 2");
+                    group2.Click += delegate {
+                        _graph.Markers.Add(new ThresholdMarker(origin, size, Color.Blue.ToGLColor()));
+                        _graph.Draw();
+                    };
+
+                    var nox = new MenuItem("No Explosive");
+                    nox.Click += delegate {
+                        _graph.Markers.Add(new ThresholdMarker(origin, size, Color.Aqua.ToGLColor()));
+                        _graph.Draw();
+                    };
+
+                    var ofb = new MenuItem("Out Of Bounds");
+                    ofb.Click += delegate {
+                        _graph.Markers.Add(new ThresholdMarker(origin, size, Color.Yellow.ToGLColor()));
+                        _graph.Draw();
+                    };
+
+                    var dnt = new MenuItem("DNT");
+                    dnt.Click += delegate {
+                        _graph.Markers.Add(new ThresholdMarker(origin, size, Color.Orange.ToGLColor()));
+                        _graph.Draw();
+                    };
+
+                    var explosive = new MenuItem("Explosive");
+                    explosive.Click += delegate {
+                        _graph.Markers.Add(new ThresholdMarker(origin, size, Color.Maroon.ToGLColor()));
+                        _graph.Draw();
+                    };
+
+                    var peroxide = new MenuItem("Peroxide");
+                    peroxide.Click += delegate {
+                        _graph.Markers.Add(new ThresholdMarker(origin, size, Color.Green.ToGLColor()));
+                        _graph.Draw();
+                    };
+
+
                     var menu = new ContextMenu {
                         MenuItems = {
-                            newThreshold
+                            group1,
+                            group2,
+                            nox,
+                            ofb,
+                            dnt,
+                            explosive,
+                            peroxide
                         }
                     };
                     menu.Show(_graph.Control, args.Location);
@@ -94,20 +142,13 @@ namespace GLGraph.NET.Example.Winforms {
         }
 
         void ShowStaticGraph() {
-            _graph.Lines.Add(new Line(1.0f, Color.Black.ToGLColor(), new[] {
-                new GLPoint(0, 0),
-                new GLPoint(1, 5),
-                new GLPoint(2, 0),
-                new GLPoint(3, 5),
-                new GLPoint(4, 0),
-                new GLPoint(5, 5), 
-                new GLPoint(6, 0), 
-                new GLPoint(7, 5), 
-                new GLPoint(8, 0), 
-                new GLPoint(9, 5), 
-                new GLPoint(10, 0), 
-            }));
-            _graph.Display(new GLRect(0, 0, 10, 10), true);
+            var data = new List<GLPoint>();
+            var random = new Random();
+            for (var i = 0; i < 100; i++) {
+                data.Add(new GLPoint(i,random.NextDouble() * 30 - 15));
+            }
+            _graph.Lines.Add(new Line(1.0f, Color.Black.ToGLColor(), data.ToArray()));
+            _graph.Display(new GLRect(0, -20, 120, 50), true);
         }
 
     }
@@ -115,9 +156,9 @@ namespace GLGraph.NET.Example.Winforms {
 
     public class ThresholdMarker : IDrawable {
         readonly GLRectangle _rectangle;
-        public ThresholdMarker(GraphWindow window, GLPoint location, GLSize size) {
-            _rectangle = new GLRectangle(new GLColor(1.0, 0.0, 0.0, 1.0), true, location, size);
-            _rectangle.Origin = window.ScreenToView(location);
+
+        public ThresholdMarker(GLPoint location, GLSize size, GLColor color) {
+            _rectangle = new GLRectangle(color, true, location, size);
             _rectangle.Origin = new GLPoint(_rectangle.Origin.X - size.Width / 2.0, _rectangle.Origin.Y - size.Height / 2.0);
         }
 
@@ -142,7 +183,7 @@ namespace GLGraph.NET.Example.Winforms {
     }
 
     public static class ColorExtensions {
-        public static GLColor ToGLColor(this System.Drawing.Color color) {
+        public static GLColor ToGLColor(this Color color) {
             return new GLColor(color.A / 255.0, color.R / 255.0, color.G / 255.0, color.B / 255.0);
         }
 

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 using Size = System.Drawing.Size;
 
 namespace GLGraph.NET {
@@ -132,6 +133,7 @@ namespace GLGraph.NET {
         GraphWindow Window { get; }
 
         bool PanningIsEnabled { get; set; }
+        bool IsPanning { get; }
     }
 
     public class LineGraph : ILineGraph {
@@ -139,12 +141,11 @@ namespace GLGraph.NET {
         readonly ObservableCollection<Line> _lines = new ObservableCollection<Line>();
         readonly IDictionary<Line, DisplayList> _displayLists = new Dictionary<Line, DisplayList>();
 
-        bool _panningStarted;
+        public bool IsPanning { get; private set; }
+
         ITickBar _leftTickBar;
         ITickBar _bottomTickBar;
         int _xstart, _ystart;
-
-        bool _nopaint;
 
         public GraphWindow Window { get; private set; }
 
@@ -159,7 +160,7 @@ namespace GLGraph.NET {
             set {
                 _panningIsEnabled = value;
                 if (!value) {
-                    _panningStarted = false;
+                    IsPanning = false;
                 }
             }
         }
@@ -261,17 +262,17 @@ namespace GLGraph.NET {
         }
 
         public void StartPan(int xpos, int ypos) {
-            _panningStarted = true;
+            IsPanning = true;
             _xstart = xpos;
             _ystart = ypos;
         }
 
         public void StopPan() {
-            _panningStarted = false;
+            IsPanning = false;
         }
 
         public void Pan(int xpos, int ypos) {
-            if (!_panningStarted) return;
+            if (!IsPanning) return;
             var xoffset = -(((xpos - _xstart) / (Window.WindowWidth * 1.0)) * (Window.DataWidth));
             var yoffset = ((ypos - _ystart) / (Window.WindowHeight * 1.0)) * (Window.DataHeight);
             _xstart = xpos;
@@ -350,11 +351,10 @@ namespace GLGraph.NET {
                 if (!PanningIsEnabled) return;
                 StopPan();
             };
+
             _glcontrol.MouseWheel += (s, args) => Zoom(args.Delta);
             _glcontrol.Paint += (s, args) => {
-                if (!_nopaint) {
-                    Draw();
-                }
+                Draw();
             };
         }
 
