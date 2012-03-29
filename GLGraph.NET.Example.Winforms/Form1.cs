@@ -15,6 +15,10 @@ namespace GLGraph.NET.Example.Winforms {
     public partial class Form1 : Form {
         readonly LineGraph _graph;
 
+        bool _dragging;
+        ThresholdMarker _theDragged;
+        Point? _dragStart;
+
         public Form1() {
             InitializeComponent();
             if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
@@ -33,18 +37,25 @@ namespace GLGraph.NET.Example.Winforms {
             };
 
             _graph.Control.MouseMove += (s, args) => {
-                var thresholds = _graph.Markers.OfType<ThresholdMarker>().ToArray();
-                if (thresholds.Length == 0) return;
-                var wloc = new Point(args.Location.X, args.Location.Y);
-                var hit = thresholds.FirstOrDefault(x => x.ScreenPosition(_graph.Window).Contains(wloc));
-
-                if (hit != null) {
-                    if (Cursor != hand && Cursor != handDrag) {
-                        Cursor = hand;
-                    }
+                if (_dragging) {
+                    _theDragged.Drag(_graph.Window, _dragStart.Value, args.Location);
+                    _dragStart = new Point(args.Location.X, args.Location.Y);
+                    _graph.Draw();
                 } else {
-                    _graph.PanningIsEnabled = true;
-                    Cursor = System.Windows.Forms.Cursors.Default;
+                    var thresholds = _graph.Markers.OfType<ThresholdMarker>().ToArray();
+                    if (thresholds.Length == 0) return;
+                    var wloc = new Point(args.Location.X, args.Location.Y);
+                    var hit = thresholds.FirstOrDefault(x => x.ScreenPosition(_graph.Window).Contains(wloc));
+                    
+                    if (hit != null) {
+                        _theDragged = hit;
+                        if (Cursor != hand && Cursor != handDrag) {
+                            Cursor = hand;
+                        }
+                    } else {
+                        _graph.PanningIsEnabled = true;
+                        Cursor = System.Windows.Forms.Cursors.Default;
+                    }
                 }
             };
 
@@ -53,6 +64,8 @@ namespace GLGraph.NET.Example.Winforms {
                     if (Cursor == hand) {
                         _graph.PanningIsEnabled = false;
                         Cursor = handDrag;
+                        _dragging = true;
+                        _dragStart = new Point(args.Location.X, args.Location.Y);
                     }
                 }
             };
@@ -61,6 +74,9 @@ namespace GLGraph.NET.Example.Winforms {
                 if(Cursor == handDrag) {
                     _graph.PanningIsEnabled = true;
                     Cursor = hand;
+                    _dragging = false;
+                    _theDragged = null;
+                    _dragStart = null;
                 }
             };
 
@@ -125,6 +141,14 @@ namespace GLGraph.NET.Example.Winforms {
             var origin = window.ViewToScreen(_rectangle.Origin);
             var corner = window.ViewToScreen(new Point(_rectangle.Origin.X + _rectangle.Size.Width, _rectangle.Origin.Y + _rectangle.Size.Height));
             return new Rect(origin, corner);
+        }
+
+        public void Drag(GraphWindow window, Point start, System.Drawing.Point location) {
+            var locD = window.ScreenToView(new Point(location.X, location.Y));
+            var startD = window.ScreenToView(new Point(start.X, start.Y));
+            var offsetX = locD.X - startD.X;
+            var offsetY = locD.Y - startD.Y;
+            _rectangle.Origin = new Point(_rectangle.Origin.X + offsetX, _rectangle.Origin.Y + offsetY);
         }
     }
 }
