@@ -24,8 +24,15 @@ namespace GLGraph.NET {
 
         public bool Contains(double x, double y) {
             return ((x >= X) && (x - Width <= X) &&
-            (y >= Y) && (y - Height <= Y));
+                    (y >= Y) && (y - Height <= Y));
         }
 
+        public bool ContainsX(double x) {
+            return (x >= X) && (x - Width <= X);
+        }
+        
+        public bool ContainsY(double y) {
+            return (y >= Y) && (y - Height <= Y);
+        }
     }
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Windows;
 using System.Windows.Forms;
+using GLGraph.NET.Extensions;
 using Point = System.Drawing.Point;
 
 namespace GLGraph.NET.Example.Winforms {
@@ -12,8 +12,10 @@ namespace GLGraph.NET.Example.Winforms {
         readonly LineGraph _graph;
 
         bool _dragging;
+        HitKind _theHit;
         ThresholdMarker _theDragged;
         Point? _dragStart;
+
 
         public Form1() {
             InitializeComponent();
@@ -34,45 +36,122 @@ namespace GLGraph.NET.Example.Winforms {
 
             _graph.Control.MouseMove += (s, args) => {
                 if (_dragging) {
-                    _theDragged.Drag(_graph.Window, _dragStart.Value, args.Location);
-                    _dragStart = new Point(args.Location.X, args.Location.Y);
-                    _graph.Draw();
+                    if (_theDragged == null) return;
+                    if (_dragStart == null) return;
+                    switch (_theHit) {
+
+                        case HitKind.None:
+                        case HitKind.BottomEdge:
+                        case HitKind.TopEdge:
+                            break;
+
+                        case HitKind.LeftEdge:
+                            _theDragged.ResizeLeft(_graph.Window, _dragStart.Value, args.Location);
+                            _dragStart = args.Location;
+                            _graph.Draw();
+                            break;
+                        case HitKind.RightEdge:
+                            _theDragged.ResizeRight(_graph.Window, _dragStart.Value, args.Location);
+                            _dragStart = args.Location;
+                            _graph.Draw();
+                            break;
+
+                        case HitKind.Center:
+                            _theDragged.Drag(_graph.Window, _dragStart.Value, args.Location);
+                            _dragStart = new Point(args.Location.X, args.Location.Y);
+                            _graph.Draw();
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 } else {
+                    if (_dragging) return;
                     var thresholds = _graph.Markers.OfType<ThresholdMarker>().ToArray();
                     if (thresholds.Length == 0) return;
-                    var wloc = new GLPoint(args.Location.X, args.Location.Y);
-                    var hit = thresholds.FirstOrDefault(x => x.ScreenPosition(_graph.Window).Contains(wloc.X, wloc.Y));
 
-                    if (hit != null) {
-                        _theDragged = hit;
-                        if (Cursor != hand && Cursor != handDrag) {
-                            Cursor = hand;
-                        }
-                    } else {
+                    var hit = thresholds.Select(x => new {
+                        Threshold = x,
+                        Hit = x.HitTest(_graph.Window, args.Location)
+                    }).FirstOrDefault(x => x.Hit != HitKind.None);
+
+                    if (hit == null) {
                         _graph.PanningIsEnabled = true;
                         Cursor = Cursors.Default;
+                        _theDragged = null;
+                        return;
+                    }
+                    switch (hit.Hit) {
+                        case HitKind.LeftEdge:
+                        case HitKind.RightEdge:
+                            Cursor = Cursors.SizeWE;
+                            _theDragged = hit.Threshold;
+                            _theHit = hit.Hit;
+                            break;
+
+                        case HitKind.TopEdge:
+                        case HitKind.BottomEdge:
+                            //do nothing
+                            break;
+
+                        case HitKind.Center:
+                            Cursor = hand;
+                            _theDragged = hit.Threshold;
+                            _theHit = hit.Hit;
+                            break;
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             };
 
             _graph.Control.MouseDown += (s, args) => {
                 if (args.Button == MouseButtons.Left) {
-                    if (Cursor == hand) {
-                        _graph.PanningIsEnabled = false;
-                        Cursor = handDrag;
-                        _dragging = true;
-                        _dragStart = new Point(args.Location.X, args.Location.Y);
+                    if (_theDragged == null) return;
+                    switch (_theHit) {
+                        case HitKind.LeftEdge:
+                        case HitKind.RightEdge:
+                            _graph.PanningIsEnabled = false;
+                            _dragging = true;
+                            _dragStart = args.Location;
+                            break;
+
+                        case HitKind.None:
+                        case HitKind.TopEdge:
+                        case HitKind.BottomEdge:
+                            //do nothing
+                            break;
+                        case HitKind.Center:
+                            _graph.PanningIsEnabled = false;
+                            Cursor = handDrag;
+                            _dragging = true;
+                            _dragStart = args.Location;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             };
 
             _graph.Control.MouseUp += (s, args) => {
-                if (Cursor == handDrag) {
-                    _graph.PanningIsEnabled = true;
-                    Cursor = hand;
-                    _dragging = false;
-                    _theDragged = null;
-                    _dragStart = null;
+                _graph.PanningIsEnabled = true;
+                _dragging = false;
+                switch (_theHit) {
+                    case HitKind.None:
+                        break;
+                    case HitKind.LeftEdge:
+                        break;
+                    case HitKind.TopEdge:
+                        break;
+                    case HitKind.BottomEdge:
+                        break;
+                    case HitKind.RightEdge:
+                        break;
+                    case HitKind.Center:
+                        Cursor = hand;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             };
 
@@ -145,7 +224,7 @@ namespace GLGraph.NET.Example.Winforms {
             var data = new List<GLPoint>();
             var random = new Random();
             for (var i = 0; i < 100; i++) {
-                data.Add(new GLPoint(i,random.NextDouble() * 30 - 15));
+                data.Add(new GLPoint(i, random.NextDouble() * 30 - 15));
             }
             _graph.Lines.Add(new Line(1.0f, Color.Black.ToGLColor(), data.ToArray()));
             _graph.Display(new GLRect(0, -20, 120, 50), true);
@@ -154,38 +233,4 @@ namespace GLGraph.NET.Example.Winforms {
     }
 
 
-    public class ThresholdMarker : IDrawable {
-        readonly GLRectangle _rectangle;
-
-        public ThresholdMarker(GLPoint location, GLSize size, GLColor color) {
-            _rectangle = new GLRectangle(color, true, location, size);
-            _rectangle.Origin = new GLPoint(_rectangle.Origin.X - size.Width / 2.0, _rectangle.Origin.Y - size.Height / 2.0);
-        }
-
-        public void Draw(GraphWindow window) {
-            _rectangle.Draw();
-        }
-
-        public GLRect ScreenPosition(GraphWindow window) {
-            var origin = window.ViewToScreen(_rectangle.Origin);
-            var corner = window.ViewToScreen(new GLPoint(_rectangle.Origin.X + _rectangle.Size.Width, _rectangle.Origin.Y + _rectangle.Size.Height));
-            return new GLRect(origin, corner);
-        }
-
-        public void Drag(GraphWindow window, Point start, Point location) {
-            var locD = window.ScreenToView(new GLPoint(location.X, location.Y));
-            var startD = window.ScreenToView(new GLPoint(start.X, start.Y));
-            var offsetX = locD.X - startD.X;
-            var offsetY = locD.Y - startD.Y;
-            _rectangle.Origin = new GLPoint(_rectangle.Origin.X + offsetX, _rectangle.Origin.Y + offsetY);
-        }
-
-    }
-
-    public static class ColorExtensions {
-        public static GLColor ToGLColor(this Color color) {
-            return new GLColor(color.A / 255.0, color.R / 255.0, color.G / 255.0, color.B / 255.0);
-        }
-
-    }
 }

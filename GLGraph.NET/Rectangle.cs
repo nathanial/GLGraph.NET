@@ -3,15 +3,13 @@ using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
 
-    public class GLRectangle {
+    public class Rectangle {
         public GLPoint Origin { get; set; }
-        public double Width { get; set; }
-        public double Height { get; set; }
         public GLColor Color { get; set; }
         public bool Border { get; set; }
         public GLSize Size { get; set; }
 
-        public GLRectangle(GLColor color, bool border, GLPoint origin, GLSize size) {
+        public Rectangle(GLColor color, bool border, GLPoint origin, GLSize size) {
             Origin = origin;
             Border = border;
             Size = size;

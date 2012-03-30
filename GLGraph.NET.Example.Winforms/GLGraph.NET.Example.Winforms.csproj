@@ -74,6 +74,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GLGraph.NET.Extensions\GLGraph.NET.Extensions.csproj">
+      <Project>{1E12A144-D15B-4430-B26F-4E8446DBB5AD}</Project>
+      <Name>GLGraph.NET.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GLGraph.NET\GLGraph.NET.csproj">
       <Project>{784A291B-B226-44B8-AD7F-206516F656AC}</Project>
       <Name>GLGraph.NET</Name>
