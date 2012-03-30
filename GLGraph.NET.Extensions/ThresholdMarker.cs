@@ -3,17 +3,25 @@ using System.Drawing;
 using System.Windows.Forms;
 
 namespace GLGraph.NET.Extensions {
+
+    enum DragMode {
+        None,
+        ResizeLeft,
+        ResizeRight,
+        Center
+    }
+
     public class ThresholdMarker : IDrawable {
         readonly Rectangle _rectangle;
         readonly ILineGraph _graph;
         const double EdgeThreshold = 3;
 
-        bool _dragging;
-        HitKind _theHit;
-        Point? _dragStart;
-
         static readonly Cursor Hand = CustomCursor.CreateCursor((Bitmap)Image.FromFile("Cursors\\cursor_hand.png"), 8, 8);
         static readonly Cursor HandDrag = CustomCursor.CreateCursor((Bitmap)Image.FromFile("Cursors\\cursor_drag_hand.png"), 8, 8);
+
+        DragMode _hypotheticalDragMode;
+        DragMode _dragMode;
+        Point? _dragStart;
 
         public ThresholdMarker(ILineGraph graph, GLPoint location, GLSize size, GLColor color) {
             _graph = graph;
@@ -22,7 +30,7 @@ namespace GLGraph.NET.Extensions {
 
             graph.Control.MouseMove += OnMouseMove;
             graph.Control.MouseDown += OnMouseDown;
-            graph.Control.MouseUp += ControlOnMouseUp;
+            graph.Control.MouseUp += OnMouseUp;
         }
 
         public void Draw(GraphWindow window) {
@@ -69,109 +77,70 @@ namespace GLGraph.NET.Extensions {
         }
 
         void OnMouseMove(object sender, MouseEventArgs args) {
-            if (_dragging) {
-                if (_dragStart == null) return;
-                switch (_theHit) {
-                    case HitKind.None:
-                    case HitKind.BottomEdge:
-                    case HitKind.TopEdge:
-                        break;
-
-                    case HitKind.LeftEdge:
-                        ResizeLeft(_graph.Window, _dragStart.Value, args.Location);
-                        _dragStart = args.Location;
-                        _graph.Draw();
-                        break;
-                    case HitKind.RightEdge:
-                        ResizeRight(_graph.Window, _dragStart.Value, args.Location);
-                        _dragStart = args.Location;
-                        _graph.Draw();
-                        break;
-
-                    case HitKind.Center:
-                        Drag(_graph.Window, _dragStart.Value, args.Location);
-                        _dragStart = new Point(args.Location.X, args.Location.Y);
-                        _graph.Draw();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            } else {
-                if (_dragging) return;
-                var hit = HitTest(_graph.Window, args.Location);
-                switch (hit) {
-                    case HitKind.LeftEdge:
-                    case HitKind.RightEdge:
-                        _graph.Control.Cursor = Cursors.SizeWE;
-                        _theHit = hit;
-                        break;
-
-                    case HitKind.TopEdge:
-                    case HitKind.BottomEdge:
-                        //do nothing
-                        break;
-
-                    case HitKind.Center:
-                        _graph.Control.Cursor = Hand;
-                        _theHit = hit;
-                        break;
-
-                    case HitKind.None:
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
-        void OnMouseDown(object sender, MouseEventArgs args) {
-            if (args.Button == MouseButtons.Left) {
-                switch (_theHit) {
-                    case HitKind.LeftEdge:
-                    case HitKind.RightEdge:
-                        _graph.PanningIsEnabled = false;
-                        _dragging = true;
-                        _dragStart = args.Location;
-                        break;
-
-                    case HitKind.None:
-                    case HitKind.TopEdge:
-                    case HitKind.BottomEdge:
-                        //do nothing
-                        break;
-                    case HitKind.Center:
-                        _graph.PanningIsEnabled = false;
-                        _graph.Control.Cursor = HandDrag;
-                        _dragging = true;
-                        _dragStart = args.Location;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
-        void ControlOnMouseUp(object sender, MouseEventArgs mouseEventArgs) {
-            _graph.PanningIsEnabled = true;
-            _dragging = false;
-            switch (_theHit) {
-                case HitKind.None:
+            switch (_dragMode) {
+                case DragMode.None:
+                    var hit = HitTest(_graph.Window, args.Location);
+                    switch (hit) {
+                        case HitKind.None:
+                            _graph.Control.Cursor = Cursors.Default;
+                            _dragMode = DragMode.None;
+                            _hypotheticalDragMode = DragMode.None;
+                            _dragStart = null;
+                            break;
+                        case HitKind.LeftEdge:
+                            _graph.Control.Cursor = Cursors.SizeWE;
+                            _hypotheticalDragMode = DragMode.ResizeLeft;
+                            break;
+                        case HitKind.RightEdge:
+                            _graph.Control.Cursor = Cursors.SizeWE;
+                            _hypotheticalDragMode = DragMode.ResizeRight;
+                            break;
+                        case HitKind.Center:
+                            _graph.Control.Cursor = Hand;
+                            _hypotheticalDragMode = DragMode.Center;
+                            break;
+                    }
                     break;
-                case HitKind.LeftEdge:
+                case DragMode.ResizeLeft:
+                    ResizeLeft(_graph.Window, _dragStart.Value, args.Location);
+                    _dragStart = args.Location;
+                    _graph.Draw();
                     break;
-                case HitKind.TopEdge:
+                case DragMode.ResizeRight:
+                    ResizeRight(_graph.Window, _dragStart.Value, args.Location);
+                    _dragStart = args.Location;
+                    _graph.Draw();
                     break;
-                case HitKind.BottomEdge:
-                    break;
-                case HitKind.RightEdge:
-                    break;
-                case HitKind.Center:
-                    _graph.Control.Cursor = Hand;
+                case DragMode.Center:
+                    Drag(_graph.Window, _dragStart.Value, args.Location);
+                    _dragStart = args.Location;
+                    _graph.Draw();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+        }
+
+        void OnMouseDown(object sender, MouseEventArgs args) {
+            if (args.Button == MouseButtons.Left) {
+                _dragMode = _hypotheticalDragMode;
+                _dragStart = args.Location;
+                if (_dragMode != DragMode.None) {
+                    _graph.PanningIsEnabled = false;
+                }
+                if (_dragMode == DragMode.Center) {
+                    _graph.Control.Cursor = HandDrag;
+                }
+            }
+        }
+
+        void OnMouseUp(object sender, MouseEventArgs mouseEventArgs) {
+            _graph.PanningIsEnabled = true;
+            _dragMode = DragMode.None;
+            _dragStart = null;
+            _hypotheticalDragMode = DragMode.None;
+            _graph.Control.Cursor = Cursors.Default;
         }
 
         static bool RightEdgeTest(GLRect marker, Point pt) {
