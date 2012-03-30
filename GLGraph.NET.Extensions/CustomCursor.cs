@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace GLGraph.NET.Example.Winforms {
+namespace GLGraph.NET.Extensions {
     struct IconInfo {
         public bool fIcon;
         public int xHotspot;
