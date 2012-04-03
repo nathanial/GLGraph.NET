@@ -11,8 +11,6 @@ namespace GLGraph.NET.Example.Winforms {
     public partial class Form1 : Form {
         readonly LineGraph _graph;
 
-
-
         public Form1() {
             InitializeComponent();
             if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;

@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
 
-    public class Rectangle {
+    public class Rectangle : IDrawable{
         public GLPoint Origin { get; set; }
         public GLColor Color { get; set; }
         public bool Border { get; set; }
@@ -14,6 +14,10 @@ namespace GLGraph.NET {
             Border = border;
             Size = size;
             Color = color;
+        }
+
+        public void Draw(GraphWindow window) {
+            Draw();
         }
 
         public void Draw() {
@@ -58,5 +62,6 @@ namespace GLGraph.NET {
                 Origin.X + Size.Width, Origin.Y,
                 Origin.X, Origin.Y);
         }
+
     }
 }

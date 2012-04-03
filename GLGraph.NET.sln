@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Extensions", "G
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{CCE8213A-FC36-426C-99A7-47A7ABE54BD3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.StressTest", "GLGraph.NET.Example.StressTest\GLGraph.NET.Example.StressTest.csproj", "{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.WPF.StressTest", "GLGraph.NET.Example.WPF.StressTest\GLGraph.NET.Example.WPF.StressTest.csproj", "{4FC0D491-D987-4D93-ACD1-5B06D6E65257}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,12 +81,38 @@ Global
 		{1E12A144-D15B-4430-B26F-4E8446DBB5AD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1E12A144-D15B-4430-B26F-4E8446DBB5AD}.Release|x64.ActiveCfg = Release|Any CPU
 		{1E12A144-D15B-4430-B26F-4E8446DBB5AD}.Release|x86.ActiveCfg = Release|Any CPU
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Debug|x64.ActiveCfg = Debug|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Debug|x86.ActiveCfg = Debug|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Debug|x86.Build.0 = Debug|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Release|Any CPU.ActiveCfg = Release|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Release|Mixed Platforms.Build.0 = Release|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Release|x64.ActiveCfg = Release|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Release|x86.ActiveCfg = Release|x86
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A}.Release|x86.Build.0 = Release|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Debug|x64.ActiveCfg = Debug|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Debug|x86.ActiveCfg = Debug|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Debug|x86.Build.0 = Debug|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Release|Any CPU.ActiveCfg = Release|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Release|Mixed Platforms.Build.0 = Release|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Release|x64.ActiveCfg = Release|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Release|x86.ActiveCfg = Release|x86
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{018ADC3F-5980-44A7-8D03-FE9EB3D15FA0} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 		{6EA1556C-6B34-48C8-A1DD-4C842D8B8586} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
+		{018ADC3F-5980-44A7-8D03-FE9EB3D15FA0} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
+		{8612DDEB-87F2-4CFB-8372-6A5CFF25388A} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
+		{4FC0D491-D987-4D93-ACD1-5B06D6E65257} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 	EndGlobalSection
 EndGlobal

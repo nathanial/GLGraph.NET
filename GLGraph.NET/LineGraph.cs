@@ -196,6 +196,9 @@ namespace GLGraph.NET {
                 }
             };
 
+            _markers.CollectionChanged += (s, args) => {
+            };
+
         }
 
         public void Cleanup() {
