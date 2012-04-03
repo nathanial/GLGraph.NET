@@ -155,7 +155,7 @@ namespace GLGraph.NET.Example.StressTest {
             _clearTimer.Start();
 
             _drawTimer = new DispatcherTimer();
-            _drawTimer.Interval = TimeSpan.FromMilliseconds(1000);
+            _drawTimer.Interval = TimeSpan.FromMilliseconds(2000);
             _drawTimer.Tick += delegate {
                 for (var i = 0; i < 200; i++) {
                     for (var j = 0; j < 3; j++) {

@@ -405,15 +405,13 @@ namespace GLGraph.NET {
         void LoadDisplayList(Line line) {
             _displayLists[line] = new DisplayList(() => {
                 GL.LineWidth(line.Thickness);
-                GL.Begin(BeginMode.Lines);
+                GL.Begin(BeginMode.LineStrip);
                 var size = line.Points.Count;
                 GL.Color4(line.Color.R, line.Color.G,
                           line.Color.B, line.Color.A);
-                for (var j = 0; j < size - 1; j++) {
-                    var p1 = line.Points[j];
-                    var p2 = line.Points[j + 1];
-                    GL.Vertex2(p1.X, p1.Y);
-                    GL.Vertex2(p2.X, p2.Y);
+                for (var j = 0; j < size; j++) {
+                    var p = line.Points[j];
+                    GL.Vertex2(p.X, p.Y);
                 }
                 GL.End();
                 GL.LineWidth(1.0f);
