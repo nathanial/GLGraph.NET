@@ -26,7 +26,6 @@ namespace GLGraph.NET {
     }
 
     public static class Pools {
-        public static readonly IntegerPool DisplayListPool = new IntegerPool(1, 1000);
-        public static readonly IntegerPool TexturePool = new IntegerPool(1, 10);
+        public static readonly IntegerPool DisplayListPool = new IntegerPool(1, 10000);
     }
 }

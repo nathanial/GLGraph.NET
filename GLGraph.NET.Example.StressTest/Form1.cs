@@ -157,11 +157,11 @@ namespace GLGraph.NET.Example.StressTest {
             _drawTimer = new DispatcherTimer();
             _drawTimer.Interval = TimeSpan.FromMilliseconds(2000);
             _drawTimer.Tick += delegate {
-                for (var i = 0; i < 200; i++) {
+                for (var i = 0; i < 500; i++) {
                     for (var j = 0; j < 3; j++) {
                         var data = new List<GLPoint>();
-                        for (var k = 0; k < 120 * 2; k++) {
-                            data.Add(new GLPoint(k * 10, random.NextDouble() * 30 - 15));
+                        for (var k = 0; k < 100 * 2; k++) {
+                            data.Add(new GLPoint(k / 2.0 * 10, random.NextDouble() * 30 - 15));
                         }
                         _graph.Lines.Add(new Line(1.0f, Color.Black.ToGLColor(), data.ToArray()));
                     }
