@@ -232,7 +232,7 @@ namespace GLGraph.NET.Example.StressTest {
 
             public void Draw(GraphWindow window) {
                 if (Visible) {
-                    _texture.Draw(window, new Point((int)_pt.X, (int)_pt.Y));
+                    _texture.Draw(window, new GLPoint(_pt.X, _pt.Y));
                 }
             }
 

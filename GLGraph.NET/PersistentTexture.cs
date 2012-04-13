@@ -27,7 +27,7 @@ namespace GLGraph.NET {
         }
 
 
-        public void Draw(GraphWindow window, Point location) {
+        public void Draw(GraphWindow window, GLPoint location) {
             GL.Color3(1.0, 1.0, 1.0);
             GL.BindTexture(TextureTarget.Texture2D, _texture);
 
