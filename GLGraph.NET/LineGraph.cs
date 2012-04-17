@@ -407,8 +407,8 @@ namespace GLGraph.NET {
                 GL.LineWidth(line.Thickness);
                 GL.Begin(BeginMode.LineStrip);
                 var size = line.Points.Count;
-                GL.Color4(line.Color.R, line.Color.G,
-                          line.Color.B, line.Color.A);
+                //GL.Color4(line.Color.R, line.Color.G,
+                //          line.Color.B, line.Color.A);
                 for (var j = 0; j < size; j++) {
                     var p = line.Points[j];
                     GL.Vertex2(p.X, p.Y);
@@ -455,7 +455,9 @@ namespace GLGraph.NET {
         }
 
         void DrawData() {
-            foreach (var dl in _displayLists.Values) {
+            foreach(var line in _displayLists.Keys) {
+                var dl = _displayLists[line];
+                line.Color.Draw();
                 dl.Draw();
             }
         }
