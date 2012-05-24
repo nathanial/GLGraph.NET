@@ -34,17 +34,21 @@ namespace GLGraph.NET {
             Points = copy;
         }
 
-        public void AddPoint(GLPoint point) {
+        public void AddPoint(GLPoint point, bool update = true) {
             Points.Add(point);
-            if (Changed != null) {
-                Changed(this, new LineChangedEventArgs(this));
+            if(update) {
+                if(Changed != null) {
+                    Changed(this, new LineChangedEventArgs(this));
+                }
             }
         }
 
-        public void RemovePoint(int index) {
+        public void RemovePoint(int index, bool update = true) {
             Points.RemoveAt(index);
-            if (Changed != null) {
-                Changed(this, new LineChangedEventArgs(this));
+            if (update) {
+                if (Changed != null) {
+                    Changed(this, new LineChangedEventArgs(this));
+                }
             }
         }
     }
@@ -143,6 +147,8 @@ namespace GLGraph.NET {
 
         public bool IsPanning { get; private set; }
 
+        bool _displayChanged = false;
+
         ITickBar _leftTickBar;
         ITickBar _bottomTickBar;
         int _xstart, _ystart;
@@ -213,7 +219,14 @@ namespace GLGraph.NET {
         public void Draw() {
             if (Window == null) return;
             if (Window.WindowWidth == 0 || Window.WindowHeight == 0) return;
+
             _glcontrol.MakeCurrent();
+
+            if (_displayChanged) {
+                _displayChanged = false;
+                LoadDisplayLists();
+            }
+
 
             GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -315,9 +328,8 @@ namespace GLGraph.NET {
             if (Window.WindowWidth == 0) throw new Exception(ZeroError);
             if (Window.WindowHeight == 0) throw new Exception(ZeroError);
 
-            _glcontrol.MakeCurrent();
+            _displayChanged = true;
 
-            LoadDisplayLists();
             if (draw) {
                 Draw();
             }
