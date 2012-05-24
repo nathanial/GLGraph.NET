@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -21,9 +22,11 @@ namespace GLGraph.NET {
     public class Line {
         public event EventHandler<LineChangedEventArgs> Changed;
 
-        public IList<GLPoint> Points { get; set; }
+        public List<GLPoint> Points { get; set; }
         public GLColor Color { get; set; }
         public float Thickness { get; set; }
+
+        public bool IsDynamic { get; set; }
 
         public Line(float thickness, GLColor color, GLPoint[] points) {
             var copy = new List<GLPoint>();
@@ -36,8 +39,8 @@ namespace GLGraph.NET {
 
         public void AddPoint(GLPoint point, bool update = true) {
             Points.Add(point);
-            if(update) {
-                if(Changed != null) {
+            if (update) {
+                if (Changed != null) {
                     Changed(this, new LineChangedEventArgs(this));
                 }
             }
@@ -138,6 +141,7 @@ namespace GLGraph.NET {
 
         bool PanningIsEnabled { get; set; }
         bool IsPanning { get; }
+
     }
 
     public class LineGraph : ILineGraph {
@@ -242,8 +246,10 @@ namespace GLGraph.NET {
 
             DrawDataAndMarkers();
 
-            _leftTickBar.DrawTicks();
-            _bottomTickBar.DrawTicks();
+            if (TextEnabled) {
+                _leftTickBar.DrawTicks();
+                _bottomTickBar.DrawTicks();
+            }
 
             DrawDeadSpace();
 
@@ -319,6 +325,10 @@ namespace GLGraph.NET {
             if (Window == null) {
                 Window = new GraphWindow();
             }
+
+            var xyratio = Window.DataWidth / Window.DataHeight;
+            var newRatio = rect.Width / rect.Height;
+
             Window.DataOrigin = rect.Location;
             Window.DataWidth = rect.Width;
             Window.DataHeight = rect.Height;
@@ -328,8 +338,9 @@ namespace GLGraph.NET {
             if (Window.WindowWidth == 0) throw new Exception(ZeroError);
             if (Window.WindowHeight == 0) throw new Exception(ZeroError);
 
-            _displayChanged = true;
-
+            if (Math.Abs(newRatio - xyratio) > 0.01) {
+                _displayChanged = true;
+            }
             if (draw) {
                 Draw();
             }
@@ -421,9 +432,19 @@ namespace GLGraph.NET {
                 var size = line.Points.Count;
                 //GL.Color4(line.Color.R, line.Color.G,
                 //          line.Color.B, line.Color.A);
-                for (var j = 0; j < size; j++) {
-                    var p = line.Points[j];
-                    GL.Vertex2(p.X, p.Y);
+                if (line.IsDynamic) {
+                    var start = line.Points.FindIndex(0, p => p.X > Window.DataOrigin.X && p.X < (Window.DataOrigin.X + Window.DataWidth));
+                    if (start != -1) {
+                        for (var j = start; j < size; j++) {
+                            var p = line.Points[j];
+                            GL.Vertex2(p.X, p.Y);
+                        }
+                    }
+                } else {
+                    for (var j = 0; j < size; j++) {
+                        var p = line.Points[j];
+                        GL.Vertex2(p.X, p.Y);
+                    }
                 }
                 GL.End();
                 GL.LineWidth(1.0f);
@@ -467,7 +488,7 @@ namespace GLGraph.NET {
         }
 
         void DrawData() {
-            foreach(var line in _displayLists.Keys) {
+            foreach (var line in _displayLists.Keys) {
                 var dl = _displayLists[line];
                 line.Color.Draw();
                 dl.Draw();
