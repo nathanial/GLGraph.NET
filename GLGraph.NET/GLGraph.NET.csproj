@@ -156,7 +156,7 @@
     <Compile Include="VerticalTickBar.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TextRenderer.cs" />
+    <Compile Include="PieceOfText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

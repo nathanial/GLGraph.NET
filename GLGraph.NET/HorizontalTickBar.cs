@@ -58,7 +58,7 @@ namespace GLGraph.NET {
                 for (var i = RangeStart; i < RangeStop; i++) {
                     if (Math.Abs(i % MajorTick) < 0.0001) {
                         var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                        t.Draw(new GLPoint(((i - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0));
+                        t.Draw(new GLPoint(((i - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0),null,null,false);
                         _texts.Add(t);
                     }
                 }

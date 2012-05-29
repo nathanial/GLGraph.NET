@@ -221,7 +221,15 @@ namespace GLGraph.NET {
         }
 
         public void Draw() {
-            if (Window == null) return;
+            if (Window == null) {
+                Window = new GraphWindow {
+                    DataOrigin = new GLPoint(0, 0),
+                    DataHeight = 100,
+                    DataWidth = 100,
+                    WindowHeight = Control.Height,
+                    WindowWidth = Control.Width
+                };
+            }
             if (Window.WindowWidth == 0 || Window.WindowHeight == 0) return;
 
             _glcontrol.MakeCurrent();

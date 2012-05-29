@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.ColorCh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.Scrolling", "GLGraph.NET.Example.Scrolling\GLGraph.NET.Example.Scrolling.csproj", "{294A5A92-48E8-4C35-809E-08E2598EE7C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.MarkerTest", "GLGraph.NET.Example.MarkerTest\GLGraph.NET.Example.MarkerTest.csproj", "{03054431-A48E-43A7-AA1A-0EB29706CE1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +137,18 @@ Global
 		{294A5A92-48E8-4C35-809E-08E2598EE7C7}.Release|x64.ActiveCfg = Release|x86
 		{294A5A92-48E8-4C35-809E-08E2598EE7C7}.Release|x86.ActiveCfg = Release|x86
 		{294A5A92-48E8-4C35-809E-08E2598EE7C7}.Release|x86.Build.0 = Release|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Debug|x64.ActiveCfg = Debug|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Debug|x86.ActiveCfg = Debug|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Debug|x86.Build.0 = Debug|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|Any CPU.ActiveCfg = Release|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|Mixed Platforms.Build.0 = Release|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|x64.ActiveCfg = Release|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|x86.ActiveCfg = Release|x86
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -146,5 +160,6 @@ Global
 		{4FC0D491-D987-4D93-ACD1-5B06D6E65257} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 		{E75CBA6C-234A-4C91-8BD1-41C93B536003} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 		{294A5A92-48E8-4C35-809E-08E2598EE7C7} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
+		{03054431-A48E-43A7-AA1A-0EB29706CE1E} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 	EndGlobalSection
 EndGlobal

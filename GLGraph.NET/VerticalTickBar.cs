@@ -49,7 +49,7 @@ namespace GLGraph.NET {
                 for (var i = RangeStart; i < RangeStop; i++) {
                     if (Math.Abs(i % MajorTick) < 0.0001) {
                         var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                        t.Draw(new GLPoint(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight - 17));
+                        t.Draw(new GLPoint(0, ((i - Window.Bottom) / Window.DataHeight) * Window.WindowHeight),null,null,true);
                         _texts.Add(t);
                     }
                 }

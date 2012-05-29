@@ -41,8 +41,9 @@ namespace GLGraph.NET.Example.Scrolling {
 
         void ShowDynamicGraph() {
             new Thread(() => {
-                var line = new Line(1.0f, Color.Black.ToGLColor(), new GLPoint[] { });
-                line.IsDynamic = true;
+                var line = new Line(1.0f, Color.Black.ToGLColor(), new GLPoint[] { }) {
+                    IsDynamic = true
+                };
                 var i = 0;
                 _graph.Display(new GLRect(i - 60, -20, 120, 50), false);
                 BeginInvoke((Action)delegate {
