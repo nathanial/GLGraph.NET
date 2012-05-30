@@ -26,7 +26,6 @@ namespace GLGraph.NET {
                 using (var g = Graphics.FromImage(bmp)) {
                     g.Clear(Color.Transparent);
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-                    g.DrawRectangle(Pens.Black,0,0,measure.Width,measure.Height);
                     g.DrawString(Text, _font, Brushes.Black, new RectangleF(0,0,measure.Width,measure.Height));
                 }
 

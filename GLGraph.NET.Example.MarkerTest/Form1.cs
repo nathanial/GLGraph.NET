@@ -38,11 +38,13 @@ namespace GLGraph.NET.Example.MarkerTest {
             X = x;
             Y = y;
             Text = text;
-            _pos = new PieceOfText(new Font("Courier", 12), Text);
+            _pos = new PieceOfText(new Font("Courier", 32), Text);
         }
 
         public void Draw(GraphWindow window) {
-            _pos.Draw(new GLPoint(X,Y), (float) (window.DataWidth / 10.0), (float) (window.DataHeight / 10.0),false);
+            var width = (window.DataWidth/window.WindowWidth)*100;
+            var height = (window.DataHeight/window.WindowHeight)*50;
+            _pos.Draw(new GLPoint(X,Y), (float) width,(float)height,false);
         }
     }
 }
