@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using OpenTK.Graphics.OpenGL;
 
 namespace GLGraph.NET {
@@ -36,11 +37,10 @@ namespace GLGraph.NET {
                 GL.Color4(0.0, 0.0, 0.0, 0.25);
                 GL.LineWidth(0.5f);
                 OpenGL.Begin(BeginMode.Lines, () => {
-                    for (var i = RangeStart; i < RangeStop; i++) {
-                        if (Math.Abs(i % MajorTick) < 0.0001) {
-                            GL.Vertex2(TickStart + i, 0);
-                            GL.Vertex2(TickStart + i, Window.WindowHeight);
-                        }
+                    var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
+                    foreach (var tick in majorTicks) {
+                        GL.Vertex2(TickStart + tick, 0);
+                        GL.Vertex2(TickStart + tick, Window.WindowHeight);
                     }
                 });
                 GL.LineWidth(1.0f);
@@ -54,11 +54,11 @@ namespace GLGraph.NET {
             OpenGL.PushMatrix(() => {
                 MoveFiftyPixelsRight();
                 GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
-
-                for (var i = RangeStart; i < RangeStop; i++) {
-                    if (Math.Abs(i % MajorTick) < 0.0001) {
-                        var t = new PieceOfText(_font, i.ToString(CultureInfo.InvariantCulture));
-                        t.Draw(new GLPoint(((i - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0),null,null,false);
+                var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
+                foreach (var tick in majorTicks) {
+                    if (Math.Abs(tick % MajorTick) < 0.0001) {
+                        var t = new PieceOfText(_font, tick.ToString(CultureInfo.InvariantCulture));
+                        t.Draw(new GLPoint(((tick - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0), null, null, false);
                         _texts.Add(t);
                     }
                 }
@@ -74,12 +74,13 @@ namespace GLGraph.NET {
 
                 GL.Color3(0.0, 0.0, 0.0);
                 OpenGL.Begin(BeginMode.Lines, () => {
-                    for (var i = RangeStart; i < RangeStop; i++) {
-                        if (Math.Abs(i % MajorTick) < 0.0001) {
-                            DrawMajorTick(TickStart + i);
-                        } else if (Math.Abs(i % MinorTick) < 0.0001) {
-                            DrawMinorTick(TickStart + i);
-                        }
+                    var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
+                    var minorTicks = RangeHelper.FindTicks(MinorTick, RangeStart, RangeStop);
+                    foreach(var tick in majorTicks) {
+                        DrawMajorTick(TickStart + tick);
+                    }
+                    foreach(var tick in minorTicks.Where(x => !minorTicks.Any(y => Math.Abs(x - y) < 0.0001))) {
+                        DrawMinorTick(TickStart + tick);
                     }
                 });
             });
@@ -99,8 +100,8 @@ namespace GLGraph.NET {
 
                 GL.Color3(0.0, 0.0, 0.0);
                 OpenGL.Begin(BeginMode.Lines, () => {
-                    GL.Vertex2(50,50);
-                    GL.Vertex2(Window.WindowWidth,50);
+                    GL.Vertex2(50, 50);
+                    GL.Vertex2(Window.WindowWidth, 50);
                 });
             });
         }

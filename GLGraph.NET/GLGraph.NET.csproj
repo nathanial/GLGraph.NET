@@ -146,6 +146,7 @@
     <Compile Include="GLColor.cs" />
     <Compile Include="GLPoint.cs" />
     <Compile Include="GLRect.cs" />
+    <Compile Include="RangeHelper.cs" />
     <Compile Include="Rectangle.cs" />
     <Compile Include="GLSize.cs" />
     <Compile Include="HorizontalTickBar.cs" />
