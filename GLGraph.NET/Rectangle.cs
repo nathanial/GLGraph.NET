@@ -63,5 +63,7 @@ namespace GLGraph.NET {
                 Origin.X, Origin.Y);
         }
 
+        public void Dispose() {
+        }
     }
 }

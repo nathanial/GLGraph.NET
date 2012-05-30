@@ -206,7 +206,18 @@ namespace GLGraph.NET {
                 }
             };
 
+
             _markers.CollectionChanged += (s, args) => {
+                if(args.Action == NotifyCollectionChangedAction.Reset) {
+                    foreach(var m in _markers) {
+                        m.Dispose();
+                    }
+                }
+                if(args.OldItems != null) {
+                    foreach(IDrawable m in args.OldItems) {
+                        m.Dispose();
+                    }
+                }
             };
 
         }

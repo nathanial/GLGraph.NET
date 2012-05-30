@@ -217,8 +217,6 @@ namespace GLGraph.NET.Example.StressTest {
             }
         }
 
-
-
         public class SatisfiedMarker : IDrawable {
             readonly GLPoint _pt;
             readonly PersistentTexture _texture;
@@ -240,6 +238,10 @@ namespace GLGraph.NET.Example.StressTest {
 
             public Rect Dimensions {
                 get { return Rect.Empty; }
+            }
+
+            public void Dispose() {
+                _texture.Dispose();
             }
         }
     }

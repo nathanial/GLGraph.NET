@@ -51,16 +51,46 @@ namespace GLGraph.NET.Example.Scrolling {
                 });
                 while (true) {
                     var point = new GLPoint(i++, Math.Sin(i / 100.0) * 10 - 5);
+                    int i1 = i;
                     BeginInvoke((Action)delegate {
                         if (line.Points.Count > 3000) {
                             line.RemovePoint(0, update: false);
                         }
                         line.AddPoint(point);
-                        _graph.Display(new GLRect(i - 60, -20, 120, 50), false);
+                        if(Math.Abs((i1 / 100.0) % 1.0) < 0.001) {
+                            _graph.Markers.Clear();
+                            _graph.Markers.Add(new GraphText(i1, Math.Sin(i1 / 100.0) * 10 -5,i1.ToString()));
+                        }
+                        _graph.Display(new GLRect(i1 - 60, -20, 120, 50), false);
                     });
                     Thread.Sleep(10);
                 }
             }).Start();
+        }
+    }
+
+    class GraphText : IDrawable {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public string Text { get; set; }
+
+        readonly PieceOfText _pos;
+
+        public GraphText(double x, double y, string text) {
+            X = x;
+            Y = y;
+            Text = text;
+            _pos = new PieceOfText(new Font("Verdana", 32), text);
+        }
+
+        public void Draw(GraphWindow window) {
+            var width = (window.DataWidth / window.WindowWidth) * 100;
+            var height = (window.DataHeight / window.WindowHeight) * 200;
+            _pos.Draw(new GLPoint(X, Y), (float)width, (float)height, false);
+        }
+
+        public void Dispose() {
+            _pos.Dispose();
         }
     }
 }

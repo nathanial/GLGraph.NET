@@ -46,5 +46,9 @@ namespace GLGraph.NET.Example.MarkerTest {
             var height = (window.DataHeight/window.WindowHeight)*50;
             _pos.Draw(new GLPoint(X,Y), (float) width,(float)height,false);
         }
+
+        public void Dispose() {
+            _pos.Dispose();
+        }
     }
 }

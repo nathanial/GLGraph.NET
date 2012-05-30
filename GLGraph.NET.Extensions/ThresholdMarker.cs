@@ -166,6 +166,9 @@ namespace GLGraph.NET.Extensions {
         static bool CenterTest(GLRect marker, Point wloc) {
             return marker.Contains(wloc.X, wloc.Y);
         }
+
+        public void Dispose() {
+        }
     }
 
     enum HitKind {
