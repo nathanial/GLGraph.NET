@@ -13,21 +13,20 @@ namespace GLGraph.NET {
 
         public string Text { get; set; }
 
+        readonly int _bmpWidth;
+        readonly int _bmpHeight;
+
         public PieceOfText(Font font, string text) {
             _font = font;
             Text = text;
             _texture = GL.GenTexture();
-            Debug.WriteLine("Creating Text: " + text);
-        }
-
-        public void Draw(GLPoint origin, float? glWidth, float? glHeight, bool offsetHeight) {
+            Debug.WriteLine("Generating Piece Of Text: " + text);
             var measure = MeasureText();
-            float width, height;
             using (var bmp = new Bitmap(MakeEven((int)Math.Ceiling(measure.Width)), MakeEven((int)Math.Ceiling(measure.Height)))) {
                 using (var g = Graphics.FromImage(bmp)) {
                     g.Clear(Color.Transparent);
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-                    g.DrawString(Text, _font, Brushes.Black, new RectangleF(0,0,measure.Width,measure.Height));
+                    g.DrawString(Text, _font, Brushes.Black, new RectangleF(0, 0, measure.Width, measure.Height));
                 }
 
                 GL.BindTexture(TextureTarget.Texture2D, _texture);
@@ -38,13 +37,19 @@ namespace GLGraph.NET {
                 var data = bmp.LockBits(new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bmp.Width, bmp.Height, 0,
                     PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
 
                 bmp.UnlockBits(data);
-
-                width = glWidth ?? bmp.Width;
-                height = glHeight ?? bmp.Height;
+                _bmpWidth = bmp.Width;
+                _bmpHeight = bmp.Height;
             }
+        }
 
+        public void Draw(GLPoint origin, float? glWidth, float? glHeight, bool offsetHeight) {
+            float width = glWidth ?? _bmpWidth;
+            float height = glHeight ?? _bmpHeight;
+
+            GL.BindTexture(TextureTarget.Texture2D, _texture);
             GL.PushMatrix();
 
             if (offsetHeight) {

@@ -15,8 +15,6 @@ namespace GLGraph.NET.Example.Winforms {
             InitializeComponent();
             if (DesignMode || LicenseManager.UsageMode == LicenseUsageMode.Designtime) return;
 
-
-
             _graph = new LineGraph();
 
             _graph.Control.Dock = DockStyle.Fill;

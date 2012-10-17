@@ -14,15 +14,10 @@ namespace GLGraph.NET {
         public double MajorTick { get; set; }
         public GraphWindow Window { get; set; }
 
-        readonly IList<PieceOfText> _texts = new List<PieceOfText>();
+        readonly IDictionary<string, PieceOfText> _texts = new Dictionary<string, PieceOfText>();
         readonly Font _font = new Font("Arial", 10);
 
         public void DrawTicks() {
-            foreach (var t in _texts) {
-                t.Dispose();
-            }
-            _texts.Clear();
-
             DrawBackground();
             DrawMajorMinorTicks();
             DrawText();
@@ -48,6 +43,11 @@ namespace GLGraph.NET {
         }
 
         public void Dispose() {
+            foreach (var t in _texts.Values) {
+                t.Dispose();
+            }
+            _texts.Clear();
+            _font.Dispose();
         }
 
         void DrawText() {
@@ -56,11 +56,15 @@ namespace GLGraph.NET {
                 GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1.0);
                 var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
                 foreach (var tick in majorTicks) {
-                    if (Math.Abs(tick % MajorTick) < 0.0001) {
-                        var t = new PieceOfText(_font, tick.ToString(CultureInfo.InvariantCulture));
-                        t.Draw(new GLPoint(((tick - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0), null, null, false);
-                        _texts.Add(t);
+                    var tickText = tick.ToString(CultureInfo.InvariantCulture);
+                    PieceOfText pot;
+                    if (_texts.ContainsKey(tickText)) {
+                        pot = _texts[tickText];
+                    } else {
+                        pot = new PieceOfText(_font, tickText);
+                        _texts[tickText] = pot;
                     }
+                    pot.Draw(new GLPoint(((tick - Window.Start) / Window.DataWidth) * Window.WindowWidth - 5, 0), null, null, false);
                 }
             });
         }

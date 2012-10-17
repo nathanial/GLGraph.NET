@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET", "GLGraph.NET\GLGraph.NET.csproj", "{784A291B-B226-44B8-AD7F-206516F656AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example", "GLGraph.NET.Example\GLGraph.NET.Example.csproj", "{018ADC3F-5980-44A7-8D03-FE9EB3D15FA0}"
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.Scrolling", "GLGraph.NET.Example.Scrolling\GLGraph.NET.Example.Scrolling.csproj", "{294A5A92-48E8-4C35-809E-08E2598EE7C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.MarkerTest", "GLGraph.NET.Example.MarkerTest\GLGraph.NET.Example.MarkerTest.csproj", "{03054431-A48E-43A7-AA1A-0EB29706CE1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.Designer", "GLGraph.NET.Example.Designer\GLGraph.NET.Example.Designer.csproj", "{B6E051F8-D378-49CA-A828-1D44C5C7114F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,6 +151,18 @@ Global
 		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|x64.ActiveCfg = Release|x86
 		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|x86.ActiveCfg = Release|x86
 		{03054431-A48E-43A7-AA1A-0EB29706CE1E}.Release|x86.Build.0 = Release|x86
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|x64.ActiveCfg = Release|Any CPU
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -161,5 +175,6 @@ Global
 		{E75CBA6C-234A-4C91-8BD1-41C93B536003} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 		{294A5A92-48E8-4C35-809E-08E2598EE7C7} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 		{03054431-A48E-43A7-AA1A-0EB29706CE1E} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
+		{B6E051F8-D378-49CA-A828-1D44C5C7114F} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 	EndGlobalSection
 EndGlobal
