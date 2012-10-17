@@ -411,13 +411,6 @@ namespace GLGraph.NET {
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
 
-            var aliasedLineWidthRange = new float[2];
-            var antialiasedLineWidthRange = new float[2];
-            float granularity;
-            GL.GetFloat(GetPName.AliasedLineWidthRange, aliasedLineWidthRange);
-            GL.GetFloat(GetPName.SmoothLineWidthRange, antialiasedLineWidthRange);
-            GL.GetFloat(GetPName.SmoothLineWidthGranularity, out granularity);
-
             _leftTickBar = new VerticalTickBar();
             _bottomTickBar = new HorizontalTickBar();
         }

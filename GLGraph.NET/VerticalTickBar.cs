@@ -63,6 +63,8 @@ namespace GLGraph.NET {
                 GL.Translate(0, -Window.DataOrigin.Y, 0);
 
                 GL.Color3(0.0, 0.0, 0.0);
+                GL.LineWidth(1.0f);
+                GL.Disable(EnableCap.LineSmooth);
                 OpenGL.Begin(BeginMode.Lines, () => {
                     var minorTicks = RangeHelper.FindTicks(MinorTick, RangeStart, RangeStop);
                     var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
@@ -74,6 +76,7 @@ namespace GLGraph.NET {
                         DrawMajorTick(TickStart + tick);
                     }
                 });
+                GL.Enable(EnableCap.LineSmooth);
             });
         }
 
@@ -83,6 +86,8 @@ namespace GLGraph.NET {
                 GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
 
                 GL.Color3(1.0, 1.0, 1.0);
+                GL.LineWidth(1.0f);
+                GL.Disable(EnableCap.LineSmooth);
                 OpenGL.Begin(BeginMode.Quads, () => {
                     GL.Vertex2(0, Window.WindowHeight);
                     GL.Vertex2(50, Window.WindowHeight);
@@ -96,6 +101,7 @@ namespace GLGraph.NET {
                     GL.Vertex2(50, 50);
                     GL.Vertex2(50, Window.WindowHeight);
                 });
+                GL.Enable(EnableCap.LineSmooth);
             });
         }
 
