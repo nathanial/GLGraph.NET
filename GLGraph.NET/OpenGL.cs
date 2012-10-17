@@ -59,5 +59,15 @@ namespace GLGraph.NET {
             action();
             GL.End();
         }
+
+        public static void WithoutSmoothing(Action action) {
+            int oldWidth;
+            GL.GetInteger(GetPName.LineWidth, out oldWidth);
+            GL.LineWidth(1.0f);
+            GL.Disable(EnableCap.LineSmooth);
+            action();
+            GL.Enable(EnableCap.LineSmooth);
+            GL.LineWidth(oldWidth);
+        }
     }
 }

@@ -10,6 +10,8 @@ namespace GLGraph.NET {
         readonly int _texture;
         readonly Bitmap _bitmap;
 
+        bool _disposed = false;
+
         public PersistentTexture(Bitmap bitmap) {
             _texture = GL.GenTexture();
             _bitmap = bitmap;
@@ -28,6 +30,7 @@ namespace GLGraph.NET {
 
 
         public void Draw(GraphWindow window, GLPoint location) {
+            if (_disposed) throw new ObjectDisposedException("PersistentTexture");
             GL.Color3(1.0, 1.0, 1.0);
             GL.BindTexture(TextureTarget.Texture2D, _texture);
 
@@ -58,6 +61,7 @@ namespace GLGraph.NET {
 
 
         public void Dispose() {
+            _disposed = true;
             _bitmap.Dispose();
             GL.DeleteTexture(_texture);
         }

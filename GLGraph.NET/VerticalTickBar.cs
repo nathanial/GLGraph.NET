@@ -63,20 +63,19 @@ namespace GLGraph.NET {
                 GL.Translate(0, -Window.DataOrigin.Y, 0);
 
                 GL.Color3(0.0, 0.0, 0.0);
-                GL.LineWidth(1.0f);
-                GL.Disable(EnableCap.LineSmooth);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    var minorTicks = RangeHelper.FindTicks(MinorTick, RangeStart, RangeStop);
-                    var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
+                OpenGL.WithoutSmoothing(() => {
+                    OpenGL.Begin(BeginMode.Lines, () => {
+                        var minorTicks = RangeHelper.FindTicks(MinorTick, RangeStart, RangeStop);
+                        var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
 
-                    foreach (var tick in minorTicks.Where(x => !majorTicks.Any(y => Math.Abs(x - y) < 0.001))) {
-                        DrawMinorTick(TickStart + tick);
-                    }
-                    foreach (var tick in majorTicks) {
-                        DrawMajorTick(TickStart + tick);
-                    }
+                        foreach (var tick in minorTicks.Where(x => !majorTicks.Any(y => Math.Abs(x - y) < 0.001))) {
+                            DrawMinorTick(TickStart + tick);
+                        }
+                        foreach (var tick in majorTicks) {
+                            DrawMajorTick(TickStart + tick);
+                        }
+                    });
                 });
-                GL.Enable(EnableCap.LineSmooth);
             });
         }
 
@@ -86,22 +85,20 @@ namespace GLGraph.NET {
                 GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
 
                 GL.Color3(1.0, 1.0, 1.0);
-                GL.LineWidth(1.0f);
-                GL.Disable(EnableCap.LineSmooth);
-                OpenGL.Begin(BeginMode.Quads, () => {
-                    GL.Vertex2(0, Window.WindowHeight);
-                    GL.Vertex2(50, Window.WindowHeight);
-                    GL.Vertex2(50, 0);
-                    GL.Vertex2(0, 0);
-                });
+                OpenGL.WithoutSmoothing(() => {
+                    OpenGL.Begin(BeginMode.Quads, () => {
+                        GL.Vertex2(0, Window.WindowHeight);
+                        GL.Vertex2(50, Window.WindowHeight);
+                        GL.Vertex2(50, 0);
+                        GL.Vertex2(0, 0);
+                    });
 
-                GL.Color3(0.0, 0.0, 0.0);
-                GL.LineWidth(1.0f);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    GL.Vertex2(50, 50);
-                    GL.Vertex2(50, Window.WindowHeight);
+                    GL.Color3(0.0, 0.0, 0.0);
+                    OpenGL.Begin(BeginMode.Lines, () => {
+                        GL.Vertex2(50, 50);
+                        GL.Vertex2(50, Window.WindowHeight);
+                    });
                 });
-                GL.Enable(EnableCap.LineSmooth);
             });
         }
 
@@ -113,15 +110,15 @@ namespace GLGraph.NET {
                 GL.Translate(50, -Window.DataOrigin.Y, 0);
 
                 GL.Color4(0.0, 0.0, 0.0, 0.25);
-                GL.LineWidth(0.5f);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
-                    foreach (var tick in majorTicks) {
-                        GL.Vertex2(0, TickStart + tick);
-                        GL.Vertex2(Window.WindowWidth - 50, TickStart + tick);
-                    }
+                OpenGL.WithoutSmoothing(() => {
+                    OpenGL.Begin(BeginMode.Lines, () => {
+                        var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
+                        foreach (var tick in majorTicks) {
+                            GL.Vertex2(0, TickStart + tick);
+                            GL.Vertex2(Window.WindowWidth - 50, TickStart + tick);
+                        }
+                    });
                 });
-                GL.LineWidth(1.0f);
             });
         }
 

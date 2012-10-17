@@ -241,7 +241,6 @@ namespace GLGraph.NET.Example.StressTest {
             }
 
             public void Dispose() {
-                _texture.Dispose();
             }
         }
     }

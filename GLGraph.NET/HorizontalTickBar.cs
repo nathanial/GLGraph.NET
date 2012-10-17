@@ -35,15 +35,15 @@ namespace GLGraph.NET {
                 GL.Translate(-Window.DataOrigin.X, 50, 0);
 
                 GL.Color4(0.0, 0.0, 0.0, 0.25);
-                GL.LineWidth(0.5f);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
-                    foreach (var tick in majorTicks) {
-                        GL.Vertex2(TickStart + tick, 0);
-                        GL.Vertex2(TickStart + tick, Window.WindowHeight);
-                    }
+                OpenGL.WithoutSmoothing(() => {
+                    OpenGL.Begin(BeginMode.Lines, () => {
+                        var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
+                        foreach (var tick in majorTicks) {
+                            GL.Vertex2(TickStart + tick, 0);
+                            GL.Vertex2(TickStart + tick, Window.WindowHeight);
+                        }
+                    });
                 });
-                GL.LineWidth(1.0f);
             });
         }
 
@@ -73,19 +73,18 @@ namespace GLGraph.NET {
                 GL.Translate(-Window.DataOrigin.X, 0, 0);
 
                 GL.Color3(0.0, 0.0, 0.0);
-                GL.LineWidth(1.0f);
-                GL.Disable(EnableCap.LineSmooth);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
-                    var minorTicks = RangeHelper.FindTicks(MinorTick, RangeStart, RangeStop);
-                    foreach(var tick in majorTicks) {
-                        DrawMajorTick(TickStart + tick);
-                    }
-                    foreach(var tick in minorTicks.Where(x => !minorTicks.Any(y => Math.Abs(x - y) < 0.0001))) {
-                        DrawMinorTick(TickStart + tick);
-                    }
+                OpenGL.WithoutSmoothing(() => {
+                    OpenGL.Begin(BeginMode.Lines, () => {
+                        var majorTicks = RangeHelper.FindTicks(MajorTick, RangeStart, RangeStop);
+                        var minorTicks = RangeHelper.FindTicks(MinorTick, RangeStart, RangeStop);
+                        foreach (var tick in majorTicks) {
+                            DrawMajorTick(TickStart + tick);
+                        }
+                        foreach (var tick in minorTicks.Where(x => !minorTicks.Any(y => Math.Abs(x - y) < 0.0001))) {
+                            DrawMinorTick(TickStart + tick);
+                        }
+                    });
                 });
-                GL.Enable(EnableCap.LineSmooth);
             });
         }
 
@@ -94,21 +93,20 @@ namespace GLGraph.NET {
                 GL.Scale(1.0 / Window.WindowWidth, 1.0 / Window.WindowHeight, 1);
 
                 GL.Color3(1.0, 1.0, 1.0);
-                GL.LineWidth(1.0f);
-                GL.Disable(EnableCap.LineSmooth);
-                OpenGL.Begin(BeginMode.Quads, () => {
-                    GL.Vertex2(0, 50);
-                    GL.Vertex2(Window.WindowWidth, 50);
-                    GL.Vertex2(Window.WindowWidth, 0);
-                    GL.Vertex2(0, 0);
-                });
+                OpenGL.WithoutSmoothing(() => {
+                    OpenGL.Begin(BeginMode.Quads, () => {
+                        GL.Vertex2(0, 50);
+                        GL.Vertex2(Window.WindowWidth, 50);
+                        GL.Vertex2(Window.WindowWidth, 0);
+                        GL.Vertex2(0, 0);
+                    });
 
-                GL.Color3(0.0, 0.0, 0.0);
-                OpenGL.Begin(BeginMode.Lines, () => {
-                    GL.Vertex2(50, 50);
-                    GL.Vertex2(Window.WindowWidth, 50);
+                    GL.Color3(0.0, 0.0, 0.0);
+                    OpenGL.Begin(BeginMode.Lines, () => {
+                        GL.Vertex2(50, 50);
+                        GL.Vertex2(Window.WindowWidth, 50);
+                    });
                 });
-                GL.Enable(EnableCap.LineSmooth);
             });
         }
 
