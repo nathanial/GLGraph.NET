@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
@@ -20,7 +18,6 @@ namespace GLGraph.NET {
             _font = font;
             Text = text;
             _texture = GL.GenTexture();
-            Debug.WriteLine("Generating Piece Of Text: " + text);
             var measure = MeasureText();
             using (var bmp = new Bitmap(MakeEven((int)Math.Ceiling(measure.Width)), MakeEven((int)Math.Ceiling(measure.Height)))) {
                 using (var g = Graphics.FromImage(bmp)) {
@@ -46,17 +43,13 @@ namespace GLGraph.NET {
         }
 
         public void Draw(GLPoint origin, float? glWidth, float? glHeight, bool offsetHeight) {
-            float width = glWidth ?? _bmpWidth;
-            float height = glHeight ?? _bmpHeight;
+            var width = glWidth ?? _bmpWidth;
+            var height = glHeight ?? _bmpHeight;
 
             GL.BindTexture(TextureTarget.Texture2D, _texture);
             GL.PushMatrix();
 
-            if (offsetHeight) {
-                GL.Translate(Math.Round(origin.X), Math.Round(origin.Y - _font.Height/2.0), 0);
-            } else {
-                GL.Translate(Math.Round(origin.X), Math.Round(origin.Y),0);
-            }
+            GL.Translate(Math.Round(origin.X), offsetHeight ? Math.Round(origin.Y - _font.Height/2.0) : Math.Round(origin.Y), 0);
 
             GL.Begin(BeginMode.Quads);
             GL.Color3(0,0,0);

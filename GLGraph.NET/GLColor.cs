@@ -22,5 +22,19 @@ namespace GLGraph.NET {
         public void DrawFaded() {
             GL.Color4(_r,_g,_b,0.1);
         }
+
+        public override bool Equals(object obj) {
+            if (obj == null) return false;
+            var c = obj as GLColor;
+            if (c == null) return false;
+            return _a == c._a &&
+                   _r == c._r &&
+                   _g == c._g &&
+                   _b == c._b;
+        }
+
+        public override int GetHashCode() {
+            return _a.GetHashCode() ^ _r.GetHashCode() ^ _g.GetHashCode() ^ _b.GetHashCode();
+        }
     }
 }
