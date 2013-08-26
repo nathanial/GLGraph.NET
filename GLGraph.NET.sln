@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.MarkerT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.Designer", "GLGraph.NET.Example.Designer\GLGraph.NET.Example.Designer.csproj", "{B6E051F8-D378-49CA-A828-1D44C5C7114F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLGraph.NET.Example.ScaleX", "GLGraph.NET.Example.ScaleX\GLGraph.NET.Example.ScaleX.csproj", "{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -163,6 +165,18 @@ Global
 		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|x64.ActiveCfg = Release|Any CPU
 		{B6E051F8-D378-49CA-A828-1D44C5C7114F}.Release|x86.ActiveCfg = Release|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Release|x64.ActiveCfg = Release|Any CPU
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -176,5 +190,6 @@ Global
 		{294A5A92-48E8-4C35-809E-08E2598EE7C7} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 		{03054431-A48E-43A7-AA1A-0EB29706CE1E} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 		{B6E051F8-D378-49CA-A828-1D44C5C7114F} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
+		{6C1A2EE6-20AD-418F-B12D-CBFAD098B64A} = {CCE8213A-FC36-426C-99A7-47A7ABE54BD3}
 	EndGlobalSection
 EndGlobal
